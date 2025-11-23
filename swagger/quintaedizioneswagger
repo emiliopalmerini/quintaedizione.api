@@ -1,0 +1,2840 @@
+openapi: 3.0.1
+info:
+  description: Questo swagger contiene tutte le API utili per consultare il modello dati di Dnd
+  version: "1.0"
+  title: DND REST API Italiane
+servers:
+  - url: /rest
+paths:
+  /incantesimi:
+    get:
+      tags:
+        - incantesimi
+      description: questa API viene impiegata per recuperare una lista di incantesimi secondo determinati filtri
+      parameters:
+        - name: nome
+          in: query
+          description: il nome dell'incantesimo da ricercare
+          schema:
+           type: string
+        - name: livello
+          in: query
+          description: il livello dell'incantesimo da ricercare, i valori sono da 0 a 9. I trucchetti sono classificati come incantesimi di livello 0.
+          schema:
+           type: integer
+           format: int32
+           minimum: 0
+           maximum: 9
+        - name: tempo_di_lancio
+          in: query
+          description: indica il tempo di lancio dell'incantesimo, questo parametro può essere valorizzato anche con "Rituale" per ricercare incantesimi che possono essere lanciati in questa modalità 
+          schema:
+            type: string
+        - name: gittata
+          in: query
+          description: la gittata dell'incantesimo, in piedi
+          schema:
+            type: string
+        - name: concentrazione
+          in: query
+          description: indica se l'incantesimo ricercato preveda concentrazione o meno
+          schema:
+            type: boolean
+        - name: rituale
+          in: query
+          description: indica se l'incantesimo ricerca possa essere lanciato come rituale
+          schema:
+            type: boolean
+        - name: componenti
+          in: query
+          description: le componenti necessarie per lanciare l'incantesimo, la valorizzazione accettata è una lista contenente al massimo i valori 'V', 'S' ed 'M'. Se incluso più di un valore, la ricerca è in "AND" e non in "OR"
+          schema:
+            type: array
+            maxItems: 3
+            items:
+              type: string
+              enum:
+                  - V
+                  - S
+                  - M
+        - name: componenti_materiali
+          in: query
+          description: il tipo di componenti materiali richieste per lanciare l'incantesimo, se sono più di una, separare ciascuna componente con una ','
+          schema:
+            type: string
+        - name: scuola_di_magia
+          in: query
+          description: la scuola di magia associata all'incantesimo
+          schema:
+            type: string
+            enum:
+              - Abiurazione
+              - Divinazione
+              - Evocazione
+              - Invocazione
+              - Necromamzia
+              - Illusione
+              - Transmutazione
+              - Incantamento
+        - name: durata
+          in: query
+          description: la durata dell'incantesimo
+          schema:
+            type: string
+        - name: classi
+          in: query
+          description: la classe o l'elenco delle classi separate da ',' associate all'incantesimo, se sono più di una, la ricerca sarà in "AND" e non in "OR"
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+               - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione_di_riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                required:
+                  - pagina
+                  - numero_di_elementi
+                  - incantesimi
+                properties:
+                  pagina:
+                    type: integer
+                  numero_di_elementi:
+                    type: integer
+                  incantesimi:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Incantesimo'
+              examples: {}
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /incantesimi/{id_incantesimo}:
+    get:
+      tags:
+        - incantesimi
+      parameters:
+        - name: id_incantesimo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incantesimo'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /mostri:
+    get:
+      tags:
+        - mostri
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /mostri/{id_mostro}:
+    get:
+      tags:
+        - mostri
+      parameters:
+        - name: id_mostro
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /oggetti:
+    get:
+      tags:
+        - oggetti
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /oggetti/{id_oggetto}:
+    get:
+      tags:
+        - oggetti
+      parameters:
+        - name: id_oggetto
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /maestrie:
+    get:
+      tags:
+        - maestrie
+      description: questa API viene impiegata per recuperare una lista di maestrie secondo determinati filtri
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della maestria da ricercare
+          schema:
+           type: string
+        - name: arma
+          in: query
+          description: l'arma specifica per la quale si vuole verificare la maestria
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                required:
+                  - pagina
+                  - numero_di_elementi
+                  - incantesimi
+                properties:
+                  pagina:
+                    type: integer
+                  numero_di_elementi:
+                    type: integer
+                  incantesimi:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Maestria'
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /maestrie/{id_maestria}:
+    get:
+      tags:
+        - maestrie
+      parameters:
+        - name: id_maestria
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Maestria'
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /classi:
+     get:
+      tags:
+        - classi
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /classi/{id_classe}:
+    get:
+      tags:
+        - classi
+      parameters:
+        - name: id_classe
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /classi/{id_classe}/sotto_classi:
+     get:
+      tags:
+        - classi
+      parameters:
+        - name: id_classe
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /classi/{id_classe}/sotto_classi/{id_sotto_classe}:
+     get:
+      tags:
+        - classi
+      parameters:
+        - name: id_classe
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id_sotto_classe
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /talenti:
+    get:
+      tags:
+        - talenti
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /talenti/{id_talento}:
+    get:
+      tags:
+        - talenti
+      parameters:
+        - name: id_talento
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /specie:
+    get:
+      tags:
+        - specie
+      description: questa API viene impiegata per recuperare una lista di specie secondo determinati filtri
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della specie da ricercare
+          schema:
+           type: string
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione_di_riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                required:
+                  - pagina
+                  - numero_di_elementi
+                  - specie
+                properties:
+                  pagina:
+                    type: integer
+                  numero_di_elementi:
+                    type: integer
+                  specie:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Specie'
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /specie/{id_specie}:
+    get:
+      tags:
+        - specie
+      parameters:
+        - name: id_specie
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Specie'
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /background:
+    get:
+      tags:
+        - background
+      description: questa API viene impiegata per recuperare una lista di background secondo determinati filtri
+      parameters:
+            - name: nome
+              in: query
+              description: il nome del background da ricercare
+              schema:
+                type: string
+            - name: caratteristica_associata
+              in: query
+              description: il nome della caratteristica associata al background
+              schema:
+                $ref: '#/components/schemas/Caratteristica'
+            - name: $limit
+              description: il numero massimo di elementi da restituire
+              in: query
+              schema:
+                type: integer
+                format: int32
+            - name: $offset
+              description: indica l'offset da applicare per i risultati di ricerca
+              in: query
+              schema:
+                type: integer
+                format: int32
+            - name: documentazione_di_riferimento
+              description: la documentazione di riferimento in cui è presente l'incantesimo
+              in: query
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - DND 2024
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                required:
+                  - pagina
+                  - numero_di_elementi
+                  - specie
+                  properties:
+                    pagina:
+                      type: integer
+                    numero_di_elementi:
+                      type: integer
+                    background:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Background'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /backeground/{id_background}:
+    get:
+      tags:
+        - background
+      parameters:
+        - name: id_background
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Background'
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /regole:
+    get:
+      tags:
+        - regola
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /regole/{id_regola}:
+    get:
+      tags:
+        - regola
+      parameters:
+        - name: id_regola
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /condizioni:
+    get:
+      tags:
+        - condizioni
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /condizioni/{id_condizione}:
+    get:
+      tags:
+        - condizioni
+      parameters:
+        - name: id_condizione
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /linguaggi:
+    get:
+      tags:
+        - linguaggi
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /linguaggi/{id_linguaggio}:
+    get:
+      tags:
+        - linguaggi
+      parameters:
+        - name: id_linguaggio
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /divinità:
+    get:
+      tags:
+        - divinità
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /divinità/{id_divinità}:
+    get:
+      tags:
+        - divinità
+      parameters:
+        - name: id_divinità
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /bastioni:
+    get:
+      tags:
+        - bastioni
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /bastioni/{id_bastione}:
+    get:
+      tags:
+        - bastioni
+      parameters:
+        - name: id_bastione
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+              examples: {}
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+  /ricerca:
+    post:
+      tags:
+      - ricerca
+      description: >
+        L'API di ricerca consente di eseguire una query di ricerca sul DB ed ottenere dei risultati
+        di ricerca che rispettino la query di input. Si può effettuare la ricerca su diversi oggetti come
+        Classi, Mostri, Incantesimi, Oggetti,...ecc.
+
+        Di seguito vengono elencati i tipi per i quali effettuare le ricerce e per i quali si può specificare un
+        perimetro di ricerca ed il numero di campi in output.
+
+         1. CLASSI
+         2. SOTTOCLASSI
+         2. MOSTRI
+         3. INCANTESIMI
+         4. SPECIE
+         5. BACKGROUND
+         6. PANTHEON
+         7. OGGETTI
+         8. TALENTI
+         9. MAESTRIE
+         10. REGOLE
+         11. CONDIZIONI
+         11. BASTIONI
+
+         Per i tipi elencati sopra, se viene definito un perimetro di ricerca, allora questo viene applicato per tutti i tipi
+         a prescindere che sia compatibile o meno. Inoltre se i campi richiesti in output specificati non sono compatibili
+         con uno dei tipi, allora il risultato di ricerca non conterrà tali campi.
+         Se i parametri $limit o $offset vengono specificati, allora la ricerca salterà i primi n record specificati
+         da tutti i tipi e recupererà un numero di record pari a $limit.
+
+        esempi:
+
+        1. Recupera tutti gli incantesimi che contengono "fuoco" come sottostringa del nome
+
+        Payload : { "tipi" : ["INCANTESIMI"], "perimetro_ricerca":[ { "nome_attributo" : "nome", "parola_chiave" : ".*fuoco.*" }] }
+
+        Il payload sopracitato recupererà tutti gli incantesimi contenente la sottostringa fuoco nel nome.
+        La risposta conterrà tutti i campi del modello dati dell'incantesimo.
+
+        2. Recupera tutti gli incantesimi che contengono "fuoco" come sottostringa del nome e un set specifico di campi in response
+
+        Payload : { "tipi" : ["INCANTESIMI"], "perimetro_ricerca":[ { "nome_attributo" : "nome", "parola_chiave" : ".*fuoco.*" }],
+        "campi_in_risposta" : ["id", "scuola", "durata", "gittata", "concentrazione"]}
+
+        Per recuperare tutti i campi, l'utente può usare "*" in campi_in_risposta.
+
+        I campi_in_risposta possono essere identificati tramite la definizione dello schema presente all'interno di questo swagger
+
+        tipo: CLASSI, definizione: "#/components/schemas/Classe"
+        tipo: SOTTOCLASSI, definizione: "#/components/schemas/SottoClasse"
+        tipo: MOSTRI, definizione: "#/components/schemas/Mostro"
+        tipo: INCANTESIMI, definizione: "#/components/schemas/Incantesimo"
+        tipo: SPECIE, definizione: "#/components/schemas/Specie"
+        tipo: BACKGROUND, definizione: "#/components/schemas/Background"
+        tipo: PANTHEON, definizione: "#/components/schemas/Divinità"
+        tipo: OGGETTI, definizione: "#/components/schemas/Oggetto"
+        tipo: TALENTI, definizione: "#/components/schemas/Talento"
+        tipo: MAESTRIE, definizione: "#/components/schemas/Maestria"
+        tipo: REGOLE, definizione: "#/components/schemas/Regola"
+        tipo: CONDIZIONI, definizione: "#/components/schemas/Condizione"
+        tipo: BASTIONI, definizione: definizione: "#/components/schemas/Bastione"
+
+      operationId: ricerca_per_tipo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContestoRicerca"
+        description: I parametri di ricerca necessari per trovare uno specifico set di risultati rispetto ai tipi
+          specificati
+        required: true
+      responses:
+        "200":
+          description: Questo status code indica che il processo di ricerca ha avuto successo.
+            Il risultato è una mappa di tipi e oggetti. Ciascun tipo ha i propri risultati di ricerca mappati.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+        "400":
+          description: Questo status indica che vi è stato un errore durante il processo di ricerca o che l'utente
+          abbia dimenticato dei campi mandatori o abbia sbagliato la valorizzazione di uno dei campi di ricerca.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "401":
+          description: Questo status code indica che l'utente non ha fornito le credenziali corrette
+            o le credenziali contenenti i privilegi per effettuare la ricerca.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+        "500":
+          description: Questo status code indica che il processo di ricerca non è andato a buon fine a causa
+          di un errore server interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorObject'
+      security:
+        - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth: # arbitrary name for the security scheme
+      type: apiKey
+      in: header # can be "header", "query" or "cookie"
+      name: X-API-KEY # name of the header, query parameter or cookie
+  schemas:
+    Caratteristica:
+      type: string
+      enum:
+        - Forza
+        - Destrezza
+        - Costituzione
+        - Saggezza
+        - Intelligenza
+        - Carisma
+    ContestoRicerca:
+      type: object
+      required:
+        - tipi
+      properties:
+        condizione:
+          type: string
+          description: La condizione per il perimetro di ricerca specificato. Il valore può essere 'and' o
+            'or'
+          enum:
+            - and
+            - or
+        $offset:
+          type: integer
+          format: int32
+          description: L'indice iniziale per il quale i record devono essere recuperati. Il valore di
+            default è 0 che consente di recuperare la lista dall'inizio. Questo indice è applicato per
+            ciascun tipo separatamente. Per ciascun tipo i primi n record vengono saltati
+            come specificato dal campo $offset. Se il valore indicato è minore di 0, allora viene utilizzato
+            il valore di default per recuperare i record
+        campi_in_risposta:
+          type: array
+          description: Lista di campi che devono essere recuperati per gli specifici tipi.
+          items:
+            type: string
+        perimetro_ricerca:
+          type: array
+          items:
+            $ref: "#/components/schemas/CampoRicerca"
+        $limit:
+          type: integer
+          format: int32
+          description: Il numero di record da recuperare. Il valore di default value è -1, che indica il recupero di
+            tutti i record. Il limite è applicato separatamente per ciascun tipo. Ogni tipo avrà un numero di record
+            recuperati minore o uguale al limite specificato Se il valore specidicato è minore di 0 allora
+            viene usato il valore di default
+        ordina_per_campo:
+          type: string
+          description: Il nome del campo per il quale deve essere applicato l'ordinamento.
+        ordinamento:
+          type: string
+          description: l'ordinamento dei record
+          enum:
+            - ASC
+            - DESC
+        tipi:
+          type: array
+          description: Lista dei tipi consentiti che possono essere ricercati all'interno del DB.
+          items:
+            type: string
+            enum:
+              - CLASSI
+              - SOTTOCLASSI
+              - MOSTRI
+              - INCANTESIMI
+              - SPECIE
+              - BACKGROUND
+              - PANTHEON
+              - OGGETTI
+              - TALENTI
+              - MAESTRIE
+              - REGOLE
+              - CONDIZIONI
+              - BASTIONI
+      description: Definisce la struttura della chiamata per ricercare elementi all'interno di tutto il Database
+    CampoRicerca:
+      type: object
+      properties:
+        nome_attributo:
+          type: string
+          description: Nome dell'attributo che deve essere cercato secondo le possibili tipologie
+        parola_chiave:
+          type: string
+          description: >-
+            Valore dell'attributo corrispondente che deve essere matched. Gli utentu possono utilizzare espressioni
+            regolari per specificare valori multipi per un singolo nome_attributo.
+            Per esempio per trovare
+             1. nome contiene "verde" or equals "lich" , possiamo usare {"nome_attributo" : "nome",
+             "parola_chiave" : ".*verde*|lich"}.
+             2. nome inizia con "goblin" - {"nome_attributo" : "nome", "parola_chiave" : "goblin.*"}.
+             3. la caratteristica è Forza or Destrezza - {"nome_attributo" : "caratteristica",
+             "parola_chiave" : "Forza|Destrezza"}.
+      description: "Il perimetro di ricerca è un criterio di filtraffio per la lista di tipi specificati nella ricerca
+        È una coppia chiave/valore. La chiave è il nome del campo per il quale la ricerca viene eseguita ed il valore contiene
+        la stringa che deve essere ricercata per il campo specificato. L'utente deve dapprima ispezionare il modello dati
+        per determinare il nome esatto dei campi da ricercare."
+    ErrorObject:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorCommon'
+    ErrorCommon:
+      type: object
+      properties:
+        code:
+          type: string
+          description: 'an application-specific error code, expressed as a string value'
+        title:
+          type: string
+          description: 'a short, human-readable summary of the problem that should not change from occurrence to occurrence of the problem, except for purposes of localization'
+        detail:
+          type: string
+          description: 'a human-readable explanation specific to this occurrence of the problem. Like title, this field''s value can be localized' 
+    Attacco:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        tipo:
+          type: string
+          enum:
+            - Melee
+            - Distanza
+            - Incantesimo
+            - Tiro Salvezza Incantesimo
+            - Tiro Salvezza
+        descrizione:
+          type: string
+        tipo_di_azione:
+          type: string
+          enum:
+            - Azione
+            - Azione Bonus
+            - Reazione
+            - Azione Gratuita
+        link:
+          oneOf:
+            - type: object
+              properties:
+                id_incantesimo:
+                  type: string
+              required: [id_incantesimo]
+            - type: object
+              properties:
+                id_oggetto:
+                  type: string
+              required: [id_oggetto]
+        colpisce_automaticamente:
+          type: boolean
+        ha_portata:
+          type: boolean
+        tipo_competenza:
+          type: string
+          enum:
+            - Automatica
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+        bonus:
+          type: integer
+
+        gittata:
+          type: string
+        forma_area_effetto:
+          type: string
+          enum:
+            - linea
+            - cono
+            - cubo
+            - muro
+            - sfera
+            - cilindro
+            - emisfera
+            - quadrato
+            - emanazione
+        dimensione_area_effetto:
+          type: string
+        caratteristica_associata:
+          oneOf:
+            - type: string
+              enum:
+                - Nessuna
+                - Automatica
+            - $ref: '#/components/schemas/Caratteristica'
+        effetto_attacco:
+          oneOf:
+            -  $ref: '#/components/schemas/Danno'
+            -  $ref: '#/components/schemas/TiroSalvezzaEffetto'
+    Azione:
+      type: object
+      properties:
+        nome:
+          type: string
+        descrizione:
+          type: string
+        tipo_azione:
+          type: string
+          enum:
+            - Azione
+            - Azione Bonus
+            - Reazione
+            - Azione Gratuita
+        tiro:
+          type: object
+          properties:
+            numero_dadi:
+              type: integer
+              format: int32
+            tipo_di_dado:
+              $ref: '#/components/schemas/TipiDiDanno'
+            bonus:
+              type: integer
+              format: int32
+    Taglia:
+      type: string
+      description: identifica la stazza della specie
+      enum:
+        - Minuscola
+        - Piccola
+        - Media
+        - Grande
+        - Enorme
+        - Gargantuesca
+    Lignaggio:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        tratti:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tratto'
+    Velocità:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Corsa
+            - Volo
+            - Nuoto
+            - Scavo
+            - Arrampicata
+        valore:
+          type: integer
+          format: int32
+        unità_di_misura:
+          type: string
+    Specie:
+      type: object
+      properties:
+        id:
+          type: string
+          description: l'id univoco che identifica la specie, in questo caso coincide con "<nome specie>_<nome documentazione di riferimento>"
+        tipo:
+          type: string
+          description: identifica il tipo di creatura
+        nome:
+          type: string
+          description: identifica il nome della specie
+        lignaggio:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lignaggio'
+        taglia:
+          $ref: '#/components/schemas/Taglia'
+        dettaglio_taglia:
+          type: string
+          description: indica il range di misure in piedi della taglia della specie
+        velocità:
+          type: array
+          description: indica la velocità di movimento della specie in piedi
+          items:
+            $ref: '#/components/schemas/Velocità'
+        descrizione:
+          type: string
+          description: la descrizione della specie
+        documentazione_di_riferimento:
+          type: string
+          description: la documentazione di riferimento in cui è presente la maestria
+          enum:
+            - DND 2024
+        tratti:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tratto'
+    Abilita:
+      type: object
+      properties:
+        abilità:
+                type: string
+                enum:
+                  - Acrobazia
+                  - Atletica
+                  - Arcano
+                  - Addestrare Animali
+                  - Furtività
+                  - Rapidità di mano
+                  - Religione
+                  - Sopravvivenza
+                  - Persuasione
+                  - Inganno
+                  - Intimidire
+                  - Indagare
+                  - Storia
+                  - Medicina
+                  - Natura
+                  - Percezione
+                  - Intrattenere
+                  - Intuizione
+        competenza:
+          type: boolean
+          description: indica se si ha competenza in una determinata abilità
+        expertise:
+          type: boolean
+          description: indica se si ha expertisa in una determinata abilità
+        bonus:
+          type: integer
+          description: indica l'eventuale bonus all'abilità
+        caratteristica_collegata:
+          $ref: '#/components/schemas/Caratteristica'
+    Senso:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        gittata:
+          type: string
+    Resistenza:
+      $ref: '#/components/schemas/TipiDiDanniECondizioni'
+    Immunita:
+      $ref: '#/components/schemas/TipiDiDanniECondizioni'
+    Vulnerabilita:
+      $ref: '#/components/schemas/TipiDiDanniECondizioni'
+    TipiDiDanno:
+      type: string
+      enum:
+        - Perforante
+        - Contundente
+        - Necrotico
+        - Radioso
+        - Fuoco
+        - Ghiaccio
+        - Acido
+        - Veleno
+        - Tuono
+        - Fulmine
+        - Forza
+        - Psichico
+        - Taglienti
+    Condizioni:
+      type: string
+      enum:
+        - Infatuato
+        - Paralizzato
+        - Stordito
+        - Spaventato
+        - Assordato
+        - Esausto
+        - Incapacitato
+        - Pietrificato
+        - Invisibile
+        - Avvelenato
+        - Prono
+        - Afferrato
+        - Trattenuto
+        - Privo di sensi
+    TipiDiDanniECondizioni:
+      type: object
+      properties:
+        tipo_di_danno:
+          description: indica la tipologia di danno, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
+          type: array
+          items:
+            $ref: '#/components/schemas/TipiDiDanno'
+        condizione:
+          description: indica la tipologia di considizione, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
+          type: array
+          items:
+            $ref: '#/components/schemas/Condizioni'
+    Tratto:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        livello:
+          type: integer
+        id_incantesimo:
+          type: string
+        competenza_expertise_abilità:
+          type: array
+          items:
+            $ref: '#/components/schemas/Abilita'
+        sensi:
+          type: array
+          items:
+             $ref: '#/components/schemas/Senso'
+        numero_di_utilizzi:
+          type: integer
+        reset_con_riposo_breve:
+          type: boolean
+        reset_con_riposo_lungo:
+          type: boolean
+        tempo_azione:
+          type: string
+        resistenze:
+          type: array
+          items:
+             $ref: '#/components/schemas/Resistenza'
+        vulnerabilità:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vulnerabilita'
+        immunità:
+          type: array
+          items:
+             $ref: '#/components/schemas/Immunita'
+        attacco:
+          type: array
+          items:
+             $ref: '#/components/schemas/Attacco'
+        effetto:
+          type: array
+          items:
+            $ref: '#/components/schemas/Effetto'
+        cura:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cura'
+    Maestria:
+      type: object
+      required:
+        - id
+        - nome
+        - descrizione
+        - armi
+        - effetto
+        - documentazione_di_riferimento
+      properties:
+        id:
+          type: string
+          description: l'id univoco della maestria, in questo caso coincide con "<nome naestria>_<nome documentazione di riferimento>"
+        nome:
+          type: string
+          description: il nome della maestria
+        descrizione:
+          type: string
+          description: contiene la descrizione dell'effetto della maestria
+        armi:
+          type: array
+          description: questa lista contiene le armi che posseggono la maestria di interesse
+          items:
+            type: string
+        effetto:
+          $ref: "#/components/schemas/Effetto"
+        documentazione_di_riferimento:
+          type: string
+          description: la documentazione di riferimento in cui è presente la maestria
+          enum:
+            - DND 2024
+    Effetto:
+      type: array
+      items:
+        type: object
+        properties:
+          nome:
+            type: string
+          si_applica_a:
+            type: array
+            items:
+              type: string
+              enum:
+                - Danno
+                - Attacco
+                - Tiro Salvezza
+                - Check Abilità
+                - Iniziativa
+                - Abilità
+          descrizione:
+            type: string
+          bonus:
+            type: string
+          modificatori:
+            type: array
+            items:
+              $ref: '#/components/schemas/Modificatore'
+    Modificatore:
+        oneOf:
+          -  $ref: '#/components/schemas/ModificatoreValoreTotaleCaratteristica'
+          -  $ref: '#/components/schemas/ModificatoreBonusCaratteristica'
+          -  $ref: '#/components/schemas/VantaggioSvantaggio'
+          -  $ref: '#/components/schemas/ModificatoreClasseArmatura'
+          -  $ref: '#/components/schemas/ModificatoreDifesa'
+          -  $ref: '#/components/schemas/ModificatoreSlotArmonizzazione'
+          -  $ref: '#/components/schemas/Senso'
+          -  $ref: '#/components/schemas/ModificatorePuntiVitaMassimi'
+          -  $ref: '#/components/schemas/ModificatoreIniziativa'
+          -  $ref: '#/components/schemas/Lingua'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaTiroSalvezza'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaAbilità'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaArma'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaArmatura'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaUtensile'
+          -  $ref: '#/components/schemas/ModificatoreValoreTiroSalvezza'
+          -  $ref: '#/components/schemas/ModificatoreAbilità'
+          -  $ref: '#/components/schemas/ModificatoreGlobaleClasseDifficoltàIncantesimiTiroPerColpireIncantesimi'
+          -  $ref: '#/components/schemas/ModificatoreGlobaleTiroPerColpireArma'
+          -  $ref: '#/components/schemas/ModificatoreClasseDifficoltàCustom'
+    ModificatoreClasseDifficoltàCustom:
+      type: object
+      properties:
+        nome:
+          type: string
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreGlobaleTiroPerColpireArma:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Melee
+            - Distanza
+            - Tutte
+        bonus_tiro_per_colpire:
+          type: integer
+          format: int32
+    ModificatoreGlobaleClasseDifficoltàIncantesimiTiroPerColpireIncantesimi:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Tiro per colpire Incantesimo
+            - Classe di difficoltà Incantesimo
+        valore:
+          type: integer
+          format: int32
+    ModificatoreVelocità:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Corsa
+            - Volo
+            - Nuoto
+            - Scavo
+            - Arrampicata
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreAbilità:
+      type: object
+      properties:
+        abilità:
+          $ref: '#/components/schemas/Abilita'
+        valore:
+          type: integer
+          format: int32
+    ModificatoreValoreTiroSalvezza:
+      type: object
+      properties:
+        caratteristica:
+          $ref: '#/components/schemas/Caratteristica'
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreCompetenzaUtensile:
+      type: object
+      properties:
+        id_utensile:
+          type: string
+        competenza:
+          type: string
+          enum:
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+    ModificatoreCompetenzaArmatura:
+      type: object
+      properties:
+        id_armatura:
+          type: string
+        competenza:
+          type: string
+          enum:
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+    ModificatoreCompetenzaArma:
+      type: object
+      properties:
+        id_arma:
+          type: string
+        competenza:
+          type: string
+          enum:
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+    ModificatoreCompetenzaAbilità:
+      type: object
+      properties:
+        abilità:
+          $ref: '#/components/schemas/Abilita'
+        competenza:
+          type: string
+          enum:
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+    ModificatoreCompetenzaTiroSalvezza:
+      type: object
+      properties:
+        caratteristica:
+          $ref: '#/components/schemas/Caratteristica'
+        competenza:
+          type: string
+          enum:
+            - Non Competenza
+            - Mezza Competenza
+            - Competenza
+            - Expertise
+    Lingua:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+    ModificatoreIniziativa:
+      type: object
+      properties:
+        iniziativa:
+          type: integer
+          format: int32
+    ModificatorePuntiVitaMassimi:
+      type: object
+      properties:
+        punti_vita:
+          type: integer
+          format: int32
+    ModificatoreSlotArmonizzazione:
+      type: object
+      properties:
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreDifesa:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Resistenza
+            - Immunità
+            - Vulnerabilità
+        categoria:
+          type: string
+          enum:
+            - Danno
+            - Condizione
+        difesa:
+          oneOf:
+            - $ref: '#/components/schemas/TipiDiDanno'
+            - $ref: '#/components/schemas/Condizioni'
+          discriminator:
+            propertyName: categoria
+            mapping:
+              'Danno': '#/components/schemas/TipiDiDanno'
+              'Condizione': '#/components/schemas/Condizioni'
+    ModificatoreClasseArmatura:
+      type: object
+      properties:
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreValoreTotaleCaratteristica:
+      type: object
+      properties:
+        caratteristica:
+          $ref: '#/components/schemas/Caratteristica'
+        tipo_modifica:
+          type: string
+          enum:
+            - minimo
+            - massimo
+            - moltiplicatore
+            - sovrascrittura
+            - somma
+        valore:
+          type: integer
+          format: int32
+    ModificatoreBonusCaratteristica:
+      type: object
+      properties:
+        caratteristica:
+          $ref: '#/components/schemas/Caratteristica'
+        valore:
+          type: integer
+          format: int32
+    VantaggioSvantaggio:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Vantaggio
+            - Svantaggio
+        si_applica_a:
+          type: string
+          enum:
+            - check abilità
+            - check caratteristica
+            - tiro salvezza
+            - tiro per colpire
+            - tiro iniziativa
+        dettaglio:
+          oneOf:
+            - $ref: '#/components/schemas/VantaggioSvantaggioCheckAbilità'
+            - $ref: '#/components/schemas/VantaggioSvantaggioTiroPerColpire'
+            - $ref: '#/components/schemas/VantaggioSvantaggioTiroIniziativa'
+            - $ref: '#/components/schemas/VantaggioSvantaggioTiroSalvezza'
+            - $ref: '#/components/schemas/VantaggioSvantaggioCheckCaratteristica'
+          discriminator:
+            propertyName: si_applica_a
+            mapping:
+              'check abilità': '#/components/schemas/VantaggioSvantaggioCheckAbilità'
+              'tiro per colpire': '#/components/schemas/VantaggioSvantaggioTiroPerColpire'
+              'tiro iniziativa': '#/components/schemas/VantaggioSvantaggioTiroIniziativa'
+              'tiro salvezza': '#/components/schemas/VantaggioSvantaggioTiroSalvezza'
+              'check caratteristica': '#/components/schemas/VantaggioSvantaggioCheckCaratteristica'
+        situazione:
+          type: string
+          description: descrive il tipo di situazione all'interno della quale si applica il vantaggio / svantaggio
+    VantaggioSvantaggioCheckCaratteristica:
+      type: object
+      properties:
+        caratteristica_bersaglio:
+          oneOf:
+            - type: string
+              enum:
+                - Tutte
+            - $ref: '#/components/schemas/Caratteristica'
+    VantaggioSvantaggioTiroPerColpire:
+      type: object
+      properties:
+        tiro_per_colpire_bersaglio:
+          enum:
+            - Tutti
+            - Melee
+            - Distanza
+            - Incantesimo
+    VantaggioSvantaggioTiroIniziativa:
+      type: object
+    VantaggioSvantaggioTiroSalvezza:
+      type: object
+      properties:
+        caratteristica_bersaglio:
+          oneOf:
+            - type: string
+              enum:
+                - Tutte
+            - $ref: '#/components/schemas/Caratteristica'
+    VantaggioSvantaggioCheckAbilità:
+      type: object
+      properties:
+        abilità_bersagio:
+          oneOf:
+            - type: string
+              enum:
+                - Tutte
+            - $ref: '#/components/schemas/Abilita'
+    TipiDiDado:
+      type: string
+      description: il tipo di dado associato al danno
+      enum:
+          - d3
+          - d4
+          - d6
+          - d8
+          - d10
+          - d12
+          - d20
+    Danno:
+      type: array
+      items:
+        type: object
+        required:
+          - tipo_di_danno
+          - numero_di_dadi
+          - tipo_di_dado
+        properties:
+          tipo_di_danno:
+            description: indica la tipologia di danno, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
+            type: array
+            items:
+              $ref: '#/components/schemas/TipiDiDanno'
+          numero_di_dadi:
+            description: il numero di dadi associati al danno
+            type: integer
+          tipo_di_dado:
+            $ref: '#/components/schemas/TipiDiDado'
+          caratteristica_associata:
+            oneOf:
+              - type: string
+                enum:
+                  - Nessuna
+                  - Automatica
+              - $ref: '#/components/schemas/Caratteristica'
+    SuccessoTiroSalvezza:
+      description: descrive l'effetto nel caso in cui il bersaglio superi il tiro salvezza
+      type: object
+      properties:
+        descrizione:
+          type: string
+        effetto:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Danno'
+              - $ref: '#/components/schemas/Effetto'
+    FallimentoTiroSalvezza:
+      description: descrive l'effetto nel caso in cui il bersaglio non superi il tiro salvezza
+      type: object
+      properties:
+        descrizione:
+          type: string
+        effetto:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/Danno'
+              - $ref: '#/components/schemas/Effetto'
+    TiroSalvezzaEffetto:
+      type: object
+      required:
+        - tiro_salvezza
+        - successo
+        - fallimento
+      properties:
+        tiro_salvezza:
+          $ref: '#/components/schemas/Caratteristica'
+        successo:
+          $ref: '#/components/schemas/SuccessoTiroSalvezza'
+        fallimento:
+          $ref: '#/components/schemas/FallimentoTiroSalvezza'
+    EffettoIncantesimo:
+      description: descrive in modalità parametrica l'effetto dell'incantesimo
+      type: object
+      properties:
+        ripetizione_effetto:
+          type: integer
+        effetto:
+          oneOf:
+            -  $ref: '#/components/schemas/Danno'
+            -  $ref: '#/components/schemas/TiroSalvezzaEffetto'
+            -  $ref: '#/components/schemas/Cura'
+    Incantesimo:
+      type: object
+      required:
+        - id
+        - name
+        - livello
+        - scuola_di_magia
+        - tempo_di_lancio
+        - gittata
+        - componenti
+        - durata
+        - descrizione
+        - classi
+        - documentazione_di_riferimento
+      properties:
+        id:
+          type: string
+          description: l'identificativo univoco dell'incantesimo, la sintassi è "<nome incantesimo>_<nome documentazione di riferimento>"
+        nome:
+          type: string
+          description: il nome dell'incantesimo
+        livello:
+          type: integer
+          description: il livello dell'incantesimo, da 0 a 9, i trucchetti sono classificati come incantesimi di livello 0
+          format: int32
+          minimum: 0
+          maximum: 9
+        scuola_di_magia:
+          type: string
+          description: la scuola di magia associata all'incantesimo
+          enum:
+              - Abiurazione
+              - Divinazione
+              - Evocazione
+              - Invocazione
+              - Necromamzia
+              - Illusione
+              - Transmutazione
+              - Incantamento
+        tempo_di_lancio:
+          type: string
+          description: indica il tempo di lancio dell'incantesimo, questo parametro può essere valorizzato anche con "Rituale" per ricercare incantesimi che possono essere lanciati in questa modalità 
+        gittata:
+          type: string
+          description: la gittata dell'incantesimo, in piedi
+        area:
+          type: string
+          description: l'area di effetto dell'incantesimo
+        concentrazione:
+          type: boolean
+          description: indica se l'incantesimo richieda o meno concentrazione
+        sempre_preparato:
+          type: boolean
+          description: indica se l'incantesimo sia sempre prerato (è vero nel caso dei truccheti)
+        rituale:
+          type: boolean
+          description: indica se l'incantesimo possa essere lanciato come rituale o meno
+        effetto_incantesimo:
+          $ref: '#/components/schemas/EffettoIncantesimo'
+        componenti:
+          type: array
+          description: le componenti necessarie per lanciare l'incantesimo, la valorizzazione accettata è una lista contenente al massimo i valori 'V', 'S' ed 'M'.
+          maxItems: 3
+          items:
+            type: string
+            enum:
+              - V
+              - S
+              - M
+        componenti_materiali:
+          type: string
+          description: il tipo di componenti materiali richieste per lanciare l'incantesimo
+        durata:
+          type: string
+          description: la durata dell'incantesimo
+        descrizione:
+          type: string
+          description: la descrizione degli effetti dell'incantesimo al suo livello base
+        effetto_livello_maggiore:
+          $ref: '#/components/schemas/EffettoIncantesimo'
+        classi:
+          type: string
+          description: la classe o l'elenco delle classi separate da ',' associate all'incantesimo
+        documentazione_di_riferimento:
+          type: string
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          enum:
+            - DND 2024
+        
+    Cura:
+      type: object
+      properties:
+        link:
+          oneOf:
+            - type: object
+              properties:
+                id_incantesimo:
+                  type: string
+              required: [ id_incantesimo ]
+            - type: object
+              properties:
+                id_oggetto:
+                  type: string
+              required: [ id_oggetto ]
+        nome:
+          type: string
+        id:
+          type: string
+        descrizione:
+          type: string
+        tipo_di_azione:
+          type: string
+          enum:
+            - Azione
+            - Azione Bonus
+            - Reazione
+            - Azione Gratuita
+        bonus:
+          type: integer
+        numero_di_dadi:
+          description: il numero di dadi associati al danno
+          type: integer
+        caratteristica_associata:
+          oneOf:
+            - type: string
+              enum:
+                - Nessuna
+                - Automatica
+            - $ref: '#/components/schemas/Caratteristica'
+        tipo_di_dado:
+          $ref: '#/components/schemas/TipiDiDado'
+    Equipaggiamento:
+      type: object
+      properties:
+        oggetti:
+          type: array
+          items:
+            $ref: "#/components/schemas/Oggetto"
+        borsellino:
+          type: array
+          items:
+            $ref: "#/components/schemas/Importo"
+    Background:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        caratteristiche_associate:
+          type: array
+          items:
+            $ref: '#/components/schemas/Caratteristica'
+        id_talento:
+          type: string
+        competenza_abilità:
+          type: array
+          items:
+            $ref: '#/components/schemas/Abilita'
+        competenza_utensili:
+          type: array
+          items:
+            type: object
+            properties:
+              id_utensile:
+                type: string
+        equipaggiamento:
+          type: object
+          properties:
+            opzione_a:
+              type: array
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/Oggetto"
+            opzione_b:
+              $ref: "#/components/schemas/Importo"
+    Valuta:
+      type: object
+      properties:
+        tipo_moneta:
+          type: string
+        valore_in_monete_oro:
+          type: float
+    Importo:
+      type: object
+      properties:
+        quantità:
+          type: integer
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+    Utensile:
+      type: object
+      properties:
+        nome:
+          type: string
+        id:
+          type: string
+        competenza:
+          type: boolean
+        caratteristica_associata:
+          $ref: '#/components/schemas/Caratteristica'
+        utilizzo:
+          type: array
+          items:
+            type: object
+            properties:
+              descrizione:
+                type: string
+              classe_difficoltà:
+                type: integer
+                format: int32
+        peso:
+          type: object
+          properties:
+            valore:
+              type: integer
+              format: int64
+            unità_di_misura:
+              type: string
+        tipo_di_creazione:
+          type: array
+          items:
+            type: string
+        varianti:
+          type: array
+          items:
+            type: string
+    Armatura:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        documentazione_di_riferimento:
+          type: string
+          enum:
+            - DND 2024
+        descrizione:
+          type: string
+        categoria:
+          type: string
+          enum:
+            - Leggera
+            - Media
+            - Pesante
+            - Scudo
+        mani_occupate:
+          type: integer
+          format: int32
+          maximum: 1
+          minimum: 0
+        classe_armatura:
+          type: object
+          properties:
+            valore:
+              type: integer
+              format: int32
+            bonus_caratteristica:
+              $ref: '#/components/schemas/Caratteristica'
+            valore_forza_richiesto:
+              type: integer
+              format: int32
+            svantaggio_stealth:
+              type: boolean
+            peso:
+              type: object
+              properties:
+                valore:
+                  type: integer
+                  format: int64
+                unità_di_misura:
+                  type: string
+            costo:
+              $ref: '#/components/schemas/Importo'
+            competenza:
+              type: boolean
+    Arma:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione_di_riferimento:
+          type: string
+          enum:
+            - DND 2024
+        categoria:
+          type: string
+          enum:
+            - Semplice
+            - Marziale
+        tipo:
+          type: string
+          enum:
+            - Melee
+            - Distanza
+        mani_occupate:
+          type: integer
+          format: int32
+          maximum: 2
+          minimum: 1
+        peso:
+          type: object
+          properties:
+            valore:
+              type: integer
+              format: int64
+            unità_di_misura:
+              type: string
+        danno:
+          type: array
+          items:
+            $ref: "#/components/schemas/Danno"
+        proprietà:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProprietàArma"
+        competenza:
+          type: boolean
+        id_maestria:
+          type: string
+        costo:
+          $ref: "#/components/schemas/Importo"
+    ProprietàArma:
+      type: object
+      properties:
+        nome:
+          type: string
+        descrizione:
+          type: string
+        effetto:
+          $ref: "#/components/schemas/Effetto"
+    AttrezzaturaAvventuriero:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione_di_riferimento:
+          type: string
+          enum:
+            - DND 2024
+        consumabile:
+          type: boolean
+        peso:
+          type: object
+          properties:
+            valore:
+              type: integer
+              format: int64
+            unità_di_misura:
+              type: string
+        varietà:
+          type: array
+          items:
+            type: object
+            properties:
+              nome:
+                type: string
+              peso:
+                type: object
+                properties:
+                  valore:
+                    type: integer
+                    format: int64
+                  unità_di_misura:
+                    type: string
+              costo:
+                $ref: "#/components/schemas/Importo"
+              quantità:
+                type: integer
+                format: int32
+        costo:
+          $ref: "#/components/schemas/Importo"
+        effetto:
+          $ref: "#/components/schemas/Effetto"
+    CiboBevanda:
+      type: object
+      properties:
+        nome:
+          type: string
+        costo:
+          $ref: "#/components/schemas/Importo"
+    Alloggio:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Squallido
+            - Povero
+            - Modesto
+            - Confortevole
+            - Benestante
+            - Aristocratico
+        costo_al_giorno:
+          $ref: "#/components/schemas/Importo"
+    CiboBevandeAlloggio:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Cibo o Bevanda
+            - Alloggio
+        proprietà:
+          oneOf:
+            - $ref: "#/components/schemas/Alloggio"
+            $ref: "#/components/schemas/CiboBevanda"
+          discriminator:
+            propertyName: tipo
+            mapping:
+              'Cibo o Bevanda': "#/components/schemas/CiboBevanda"
+              'Alloggio': "#/components/schemas/Alloggio"
+    Oggetto:
+      type: object
+      properties:
+        quantità:
+          type: integer
+          format: int64
+        tipo:
+          type: string
+          enum:
+            - Arma
+            - Armatura
+            - Utensile
+            - Oggetto Magico
+            - Attrezzatura da Avventuriero
+            - Cibo, Bevanda o Alloggio
+        proprietà:
+          oneOf:
+            - $ref: "#/components/schemas/Utensile"
+            - $ref: "#/components/schemas/Armatura"
+            - $ref: "#/components/schemas/Arma"
+            - $ref: "#/components/schemas/AttrezzaturaAvventuriero"
+            - $ref: "#/components/schemas/CiboBevandeAlloggio"
+          discriminator:
+            propertyName: tipo
+            mapping:
+              'Utensile': "#/components/schemas/Utensile"
+              'Armatura': "#/components/schemas/Armatura"
+              'Arma': "#/components/schemas/Arma"
+              'Attrezzatura da Avventuriero': "#/components/schemas/AttrezzaturaAvventuriero"
+              'Cibo, Bevanda o Alloggio': "#/components/schemas/CiboBevandeAlloggio"
+

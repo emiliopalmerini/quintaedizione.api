@@ -25,7 +25,7 @@ paths:
            format: int32
            minimum: 0
            maximum: 9
-        - name: tempo_di_lancio
+        - name: tempo-di-lancio
           in: query
           description: indica il tempo di lancio dell'incantesimo, questo parametro può essere valorizzato anche con "Rituale" per ricercare incantesimi che possono essere lanciati in questa modalità 
           schema:
@@ -57,12 +57,12 @@ paths:
                   - V
                   - S
                   - M
-        - name: componenti_materiali
+        - name: componenti-materiali
           in: query
           description: il tipo di componenti materiali richieste per lanciare l'incantesimo, se sono più di una, separare ciascuna componente con una ','
           schema:
             type: string
-        - name: scuola_di_magia
+        - name: scuola-di-magia
           in: query
           description: la scuola di magia associata all'incantesimo
           schema:
@@ -106,7 +106,7 @@ paths:
           schema:
             type: integer
             format: int32
-        - name: documentazione_di_riferimento
+        - name: documentazione-di-riferimento
           description: la documentazione di riferimento in cui è presente l'incantesimo
           in: query
           schema:
@@ -123,18 +123,17 @@ paths:
               schema:
                 required:
                   - pagina
-                  - numero_di_elementi
+                  - numero-di-elementi
                   - incantesimi
                 properties:
                   pagina:
                     type: integer
-                  numero_di_elementi:
+                  numero-di-elementi:
                     type: integer
                   incantesimi:
                     type: array
                     items:
                       $ref: '#/components/schemas/Incantesimo'
-              examples: {}
         "400":
           description: "Bad Request"
           content:
@@ -155,12 +154,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /incantesimi/{id_incantesimo}:
+  /incantesimi/{id-incantesimo}:
     get:
       tags:
         - incantesimi
       parameters:
-        - name: id_incantesimo
+        - name: id-incantesimo
           in: path
           required: true
           schema:
@@ -202,16 +201,70 @@ paths:
     get:
       tags:
         - mostri
+      parameters:
+        - name: nome
+          in: query
+          description: il nome del mostro da ricercare
+          schema:
+            type: string
+        - name: tipo-creatura
+          in: query
+          description: il tipo del mostro da ricercare
+          schema:
+            $ref: '#/components/schemas/TipoCreatura'
+        - name: grado-sfida
+          in: query
+          description: il grado sfida del mostro da ricercare
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - mostri
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  mostri:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Mostro'
         "400":
           description: Bad Request
           content:
@@ -232,12 +285,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /mostri/{id_mostro}:
+  /mostri/{id-mostro}:
     get:
       tags:
         - mostri
       parameters:
-        - name: id_mostro
+        - name: id-mostro
           in: path
           required: true
           schema:
@@ -248,10 +301,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Mostro'
         "400":
           description: Bad Request
           content:
@@ -282,16 +332,72 @@ paths:
     get:
       tags:
         - oggetti
+      parameters:
+        - name: nome
+          in: query
+          description: il nome dell'oggetto da ricercare
+          schema:
+            type: string
+        - name: tipo
+          in: query
+          description: il tipo di oggetto da ricercare
+          schema:
+            type: string
+            enum:
+              - Arma
+              - Armatura
+              - Utensile
+              - Oggetto Magico
+              - Attrezzatura da Avventuriero
+              - Cibo, Bevanda o Alloggio
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - oggetti
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  oggetti:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Oggetto'
         "400":
           description: Bad Request
           content:
@@ -312,12 +418,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /oggetti/{id_oggetto}:
+  /oggetti/{id-oggetto}:
     get:
       tags:
         - oggetti
       parameters:
-        - name: id_oggetto
+        - name: id-oggetto
           in: path
           required: true
           schema:
@@ -328,10 +434,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Oggetto'
         "400":
           description: Bad Request
           content:
@@ -374,6 +477,35 @@ paths:
           description: l'arma specifica per la quale si vuole verificare la maestria
           schema:
             type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
@@ -382,18 +514,17 @@ paths:
               schema:
                 required:
                   - pagina
-                  - numero_di_elementi
-                  - incantesimi
+                  - numero-di-elementi
+                  - maestrie
                 properties:
                   pagina:
                     type: integer
-                  numero_di_elementi:
+                  numero-di-elementi:
                     type: integer
-                  incantesimi:
+                  maestrie:
                     type: array
                     items:
                       $ref: '#/components/schemas/Maestria'
-              examples: {}
         "400":
           description: Bad Request
           content:
@@ -414,12 +545,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /maestrie/{id_maestria}:
+  /maestrie/{id-maestria}:
     get:
       tags:
         - maestrie
       parameters:
-        - name: id_maestria
+        - name: id-maestria
           in: path
           required: true
           schema:
@@ -462,16 +593,60 @@ paths:
      get:
       tags:
         - classi
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della maestria da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - maestrie
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  classi:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Classe'
         "400":
           description: Bad Request
           content:
@@ -492,12 +667,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /classi/{id_classe}:
+  /classi/{id-classe}:
     get:
       tags:
         - classi
       parameters:
-        - name: id_classe
+        - name: id-classe
           in: path
           required: true
           schema:
@@ -508,10 +683,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Classe'
         "400":
           description: Bad Request
           content:
@@ -538,26 +710,69 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /classi/{id_classe}/sotto_classi:
+  /classi/{id-classe}/sotto-classi:
      get:
       tags:
         - classi
       parameters:
-        - name: id_classe
+        - name: id-classe
           in: path
           required: true
           schema:
             type: string
+        - name: nome
+          in: query
+          description: il nome della maestria da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - sottoclassi
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  sottoclassi:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SottoClasse'
         "400":
           description: Bad Request
           content:
@@ -584,17 +799,17 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /classi/{id_classe}/sotto_classi/{id_sotto_classe}:
+  /classi/{id-classe}/sotto-classi/{id-sotto-classe}:
      get:
       tags:
         - classi
       parameters:
-        - name: id_classe
+        - name: id-classe
           in: path
           required: true
           schema:
             type: string
-        - name: id_sotto_classe
+        - name: id-sotto-classe
           in: path
           required: true
           schema:
@@ -605,10 +820,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/SottoClasse'
         "400":
           description: Bad Request
           content:
@@ -639,16 +851,69 @@ paths:
     get:
       tags:
         - talenti
+      parameters:
+        - name: nome
+          in: query
+          description: il nome del talento da ricercare
+          schema:
+            type: string
+        - name: categoria
+          in: query
+          description: la categoria del talento da ricercare
+          schema:
+            type: string
+            enum:
+              - Origine
+              - Generale
+              - Dono Epico
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - talenti
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  talenti:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Talento'
         "400":
           description: Bad Request
           content:
@@ -669,12 +934,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /talenti/{id_talento}:
+  /talenti/{id-talento}:
     get:
       tags:
         - talenti
       parameters:
-        - name: id_talento
+        - name: id-talento
           in: path
           required: true
           schema:
@@ -685,10 +950,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Talento'
         "400":
           description: Bad Request
           content:
@@ -726,6 +988,14 @@ paths:
           description: il nome della specie da ricercare
           schema:
            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
         - name: $limit
           description: il numero massimo di elementi da restituire
           in: query
@@ -738,7 +1008,12 @@ paths:
           schema:
             type: integer
             format: int32
-        - name: documentazione_di_riferimento
+        - name: lingua
+          description: la lingua parlata dalla specie
+          in: query
+          schema:
+            type: string
+        - name: documentazione-di-riferimento
           description: la documentazione di riferimento in cui è presente l'incantesimo
           in: query
           schema:
@@ -755,12 +1030,12 @@ paths:
               schema:
                 required:
                   - pagina
-                  - numero_di_elementi
+                  - numero-di-elementi
                   - specie
                 properties:
                   pagina:
                     type: integer
-                  numero_di_elementi:
+                  numero-di-elementi:
                     type: integer
                   specie:
                     type: array
@@ -787,12 +1062,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /specie/{id_specie}:
+  /specie/{id-specie}:
     get:
       tags:
         - specie
       parameters:
-        - name: id_specie
+        - name: id-specie
           in: path
           required: true
           schema:
@@ -842,11 +1117,21 @@ paths:
               description: il nome del background da ricercare
               schema:
                 type: string
-            - name: caratteristica_associata
+            - name: caratteristica-associata
               in: query
               description: il nome della caratteristica associata al background
               schema:
-                $ref: '#/components/schemas/Caratteristica'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Caratteristica'
+            - name: sort
+              in: query
+              description: il tipo di ordinamento richiesto, se ascendente o descrescente
+              schema:
+                type: string
+                enum:
+                  - asc
+                  - desc
             - name: $limit
               description: il numero massimo di elementi da restituire
               in: query
@@ -859,7 +1144,7 @@ paths:
               schema:
                 type: integer
                 format: int32
-            - name: documentazione_di_riferimento
+            - name: documentazione-di-riferimento
               description: la documentazione di riferimento in cui è presente l'incantesimo
               in: query
               schema:
@@ -876,17 +1161,17 @@ paths:
               schema:
                 required:
                   - pagina
-                  - numero_di_elementi
-                  - specie
-                  properties:
-                    pagina:
-                      type: integer
-                    numero_di_elementi:
-                      type: integer
-                    background:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Background'
+                  - numero-di-elementi
+                  - background
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  background:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Background'
         "400":
           description: Bad Request
           content:
@@ -907,12 +1192,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /backeground/{id_background}:
+  /background/{id-background}:
     get:
       tags:
         - background
       parameters:
-        - name: id_background
+        - name: id-background
           in: path
           required: true
           schema:
@@ -955,16 +1240,60 @@ paths:
     get:
       tags:
         - regola
+      parameters:
+        - name: nome
+          in: query
+          description: il nome del background da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - regole
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  regole:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Regola'
         "400":
           description: Bad Request
           content:
@@ -985,12 +1314,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /regole/{id_regola}:
+  /regole/{id-regola}:
     get:
       tags:
         - regola
       parameters:
-        - name: id_regola
+        - name: id-regola
           in: path
           required: true
           schema:
@@ -1001,10 +1330,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Regola'
         "400":
           description: Bad Request
           content:
@@ -1035,16 +1361,60 @@ paths:
     get:
       tags:
         - condizioni
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della divinità da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - condizioni
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  condizioni:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Condizione'
         "400":
           description: Bad Request
           content:
@@ -1065,12 +1435,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /condizioni/{id_condizione}:
+  /condizioni/{id-condizione}:
     get:
       tags:
         - condizioni
       parameters:
-        - name: id_condizione
+        - name: id-condizione
           in: path
           required: true
           schema:
@@ -1081,10 +1451,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Condizione'
         "400":
           description: Bad Request
           content:
@@ -1115,16 +1482,65 @@ paths:
     get:
       tags:
         - linguaggi
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della divinità da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: specie-associata
+          description: la specie associata alla lingua
+          in: query
+          schema:
+            type: string
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - linguaggi
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  linguaggi:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Lingua'
         "400":
           description: Bad Request
           content:
@@ -1145,12 +1561,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /linguaggi/{id_linguaggio}:
+  /linguaggi/{id-linguaggio}:
     get:
       tags:
         - linguaggi
       parameters:
-        - name: id_linguaggio
+        - name: id-linguaggio
           in: path
           required: true
           schema:
@@ -1161,10 +1577,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Lingua'
         "400":
           description: Bad Request
           content:
@@ -1191,20 +1604,79 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /divinità:
+  /divinita:
     get:
       tags:
         - divinità
+      parameters:
+        - name: nome
+          in: query
+          description: il nome della divinità da ricercare
+          schema:
+            type: string
+        - name: sort
+          in: query
+          description: il tipo di ordinamento richiesto, se ascendente o descrescente
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: $limit
+          description: il numero massimo di elementi da restituire
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: $offset
+          description: indica l'offset da applicare per i risultati di ricerca
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: documentazione-di-riferimento
+          description: la documentazione di riferimento in cui è presente l'incantesimo
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DND 2024
+        - name: dominio
+          description: Il dominio della divinità
+          in: query
+          schema:
+            type: string
+        - name: allineamento
+          description: l'allineamento della divinità
+          in: query
+          schema:
+            $ref: '#/components/schemas/Allineamento'
+        - name: pantheon
+          description: Il pantheon all'interno del quale la divinità è venerata
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                required:
+                  - pagina
+                  - numero-di-elementi
+                  - divinità
+                properties:
+                  pagina:
+                    type: integer
+                  numero-di-elementi:
+                    type: integer
+                  divinità:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Divinita'
         "400":
           description: Bad Request
           content:
@@ -1225,12 +1697,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /divinità/{id_divinità}:
+  /divinita/{id-divinita}:
     get:
       tags:
         - divinità
       parameters:
-        - name: id_divinità
+        - name: id-divinita
           in: path
           required: true
           schema:
@@ -1241,10 +1713,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  type: object
-              examples: {}
+                $ref: '#/components/schemas/Divinita'
         "400":
           description: Bad Request
           content:
@@ -1305,12 +1774,12 @@ paths:
                 $ref: '#/components/schemas/ErrorObject'
       security:
         - ApiKeyAuth: []
-  /bastioni/{id_bastione}:
+  /bastioni/{id-bastione}:
     get:
       tags:
         - bastioni
       parameters:
-        - name: id_bastione
+        - name: id-bastione
           in: path
           required: true
           schema:
@@ -1387,19 +1856,19 @@ paths:
 
         1. Recupera tutti gli incantesimi che contengono "fuoco" come sottostringa del nome
 
-        Payload : { "tipi" : ["INCANTESIMI"], "perimetro_ricerca":[ { "nome_attributo" : "nome", "parola_chiave" : ".*fuoco.*" }] }
+        Payload : { "tipi" : ["INCANTESIMI"], "perimetro-ricerca":[ { "nome-attributo" : "nome", "parola-chiave" : ".*fuoco.*" }] }
 
         Il payload sopracitato recupererà tutti gli incantesimi contenente la sottostringa fuoco nel nome.
         La risposta conterrà tutti i campi del modello dati dell'incantesimo.
 
         2. Recupera tutti gli incantesimi che contengono "fuoco" come sottostringa del nome e un set specifico di campi in response
 
-        Payload : { "tipi" : ["INCANTESIMI"], "perimetro_ricerca":[ { "nome_attributo" : "nome", "parola_chiave" : ".*fuoco.*" }],
-        "campi_in_risposta" : ["id", "scuola", "durata", "gittata", "concentrazione"]}
+        Payload : { "tipi" : ["INCANTESIMI"], "perimetro-ricerca":[ { "nome-attributo" : "nome", "parola-chiave" : ".*fuoco.*" }],
+        "campi-in-risposta" : ["id", "scuola", "durata", "gittata", "concentrazione"]}
 
-        Per recuperare tutti i campi, l'utente può usare "*" in campi_in_risposta.
+        Per recuperare tutti i campi, l'utente può usare "*" in campi-in-risposta.
 
-        I campi_in_risposta possono essere identificati tramite la definizione dello schema presente all'interno di questo swagger
+        I campi-in-risposta possono essere identificati tramite la definizione dello schema presente all'interno di questo swagger
 
         tipo: CLASSI, definizione: "#/components/schemas/Classe"
         tipo: SOTTOCLASSI, definizione: "#/components/schemas/SottoClasse"
@@ -1415,7 +1884,7 @@ paths:
         tipo: CONDIZIONI, definizione: "#/components/schemas/Condizione"
         tipo: BASTIONI, definizione: definizione: "#/components/schemas/Bastione"
 
-      operationId: ricerca_per_tipo
+      operationId: ricerca-per-tipo
       requestBody:
         content:
           application/json:
@@ -1436,7 +1905,7 @@ paths:
                   type: object
         "400":
           description: Questo status indica che vi è stato un errore durante il processo di ricerca o che l'utente
-          abbia dimenticato dei campi mandatori o abbia sbagliato la valorizzazione di uno dei campi di ricerca.
+            abbia dimenticato dei campi mandatori o abbia sbagliato la valorizzazione di uno dei campi di ricerca.
           content:
             application/json:
               schema:
@@ -1449,8 +1918,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorObject'
         "500":
-          description: Questo status code indica che il processo di ricerca non è andato a buon fine a causa
-          di un errore server interno.
+          description: Questo status code indica che il processo di ricerca non è andato a buon fine a causa di un errore server interno.
           content:
             application/json:
               schema:
@@ -1493,12 +1961,12 @@ components:
             ciascun tipo separatamente. Per ciascun tipo i primi n record vengono saltati
             come specificato dal campo $offset. Se il valore indicato è minore di 0, allora viene utilizzato
             il valore di default per recuperare i record
-        campi_in_risposta:
+        campi-in-risposta:
           type: array
           description: Lista di campi che devono essere recuperati per gli specifici tipi.
           items:
             type: string
-        perimetro_ricerca:
+        perimetro-ricerca:
           type: array
           items:
             $ref: "#/components/schemas/CampoRicerca"
@@ -1509,15 +1977,15 @@ components:
             tutti i record. Il limite è applicato separatamente per ciascun tipo. Ogni tipo avrà un numero di record
             recuperati minore o uguale al limite specificato Se il valore specidicato è minore di 0 allora
             viene usato il valore di default
-        ordina_per_campo:
+        ordina-per-campo:
           type: string
           description: Il nome del campo per il quale deve essere applicato l'ordinamento.
-        ordinamento:
+        sort:
           type: string
           description: l'ordinamento dei record
           enum:
-            - ASC
-            - DESC
+            - asc
+            - desc
         tipi:
           type: array
           description: Lista dei tipi consentiti che possono essere ricercati all'interno del DB.
@@ -1541,20 +2009,20 @@ components:
     CampoRicerca:
       type: object
       properties:
-        nome_attributo:
+        nome-attributo:
           type: string
           description: Nome dell'attributo che deve essere cercato secondo le possibili tipologie
-        parola_chiave:
+        parola-chiave:
           type: string
           description: >-
             Valore dell'attributo corrispondente che deve essere matched. Gli utentu possono utilizzare espressioni
-            regolari per specificare valori multipi per un singolo nome_attributo.
+            regolari per specificare valori multipi per un singolo nome-attributo.
             Per esempio per trovare
-             1. nome contiene "verde" or equals "lich" , possiamo usare {"nome_attributo" : "nome",
-             "parola_chiave" : ".*verde*|lich"}.
-             2. nome inizia con "goblin" - {"nome_attributo" : "nome", "parola_chiave" : "goblin.*"}.
-             3. la caratteristica è Forza or Destrezza - {"nome_attributo" : "caratteristica",
-             "parola_chiave" : "Forza|Destrezza"}.
+             1. nome contiene "verde" or equals "lich" , possiamo usare {"nome-attributo" : "nome",
+             "parola-chiave" : ".*verde*|lich"}.
+             2. nome inizia con "goblin" - {"nome-attributo" : "nome", "parola-chiave" : "goblin.*"}.
+             3. la caratteristica è Forza or Destrezza - {"nome-attributo" : "caratteristica",
+             "parola-chiave" : "Forza|Destrezza"}.
       description: "Il perimetro di ricerca è un criterio di filtraffio per la lista di tipi specificati nella ricerca
         È una coppia chiave/valore. La chiave è il nome del campo per il quale la ricerca viene eseguita ed il valore contiene
         la stringa che deve essere ricercata per il campo specificato. L'utente deve dapprima ispezionare il modello dati
@@ -1577,7 +2045,7 @@ components:
           description: 'a short, human-readable summary of the problem that should not change from occurrence to occurrence of the problem, except for purposes of localization'
         detail:
           type: string
-          description: 'a human-readable explanation specific to this occurrence of the problem. Like title, this field''s value can be localized' 
+          description: 'a human-readable explanation specific to this occurrence of the problem. Like title, this field''s value can be localized'
     Attacco:
       type: object
       properties:
@@ -1595,7 +2063,7 @@ components:
             - Tiro Salvezza
         descrizione:
           type: string
-        tipo_di_azione:
+        tipo-di-azione:
           type: string
           enum:
             - Azione
@@ -1606,19 +2074,19 @@ components:
           oneOf:
             - type: object
               properties:
-                id_incantesimo:
+                id-incantesimo:
                   type: string
-              required: [id_incantesimo]
+              required: [id-incantesimo]
             - type: object
               properties:
-                id_oggetto:
+                id-oggetto:
                   type: string
-              required: [id_oggetto]
-        colpisce_automaticamente:
+              required: [id-oggetto]
+        colpisce-automaticamente:
           type: boolean
-        ha_portata:
+        ha-portata:
           type: boolean
-        tipo_competenza:
+        tipo-competenza:
           type: string
           enum:
             - Automatica
@@ -1628,10 +2096,21 @@ components:
             - Expertise
         bonus:
           type: integer
-
+        uso-limitato:
+          type: object
+          properties:
+            volte-al-giorno:
+              type: integer
+              format: int32
+            ricarica:
+              type: string
+            recupero-riposo-lungo:
+              type: boolean
+            recupero-riposo-breve:
+              type: boolean
         gittata:
           type: string
-        forma_area_effetto:
+        forma-area-effetto:
           type: string
           enum:
             - linea
@@ -1643,16 +2122,16 @@ components:
             - emisfera
             - quadrato
             - emanazione
-        dimensione_area_effetto:
+        dimensione-area-effetto:
           type: string
-        caratteristica_associata:
+        caratteristica-associata:
           oneOf:
             - type: string
               enum:
                 - Nessuna
                 - Automatica
             - $ref: '#/components/schemas/Caratteristica'
-        effetto_attacco:
+        effetto-attacco:
           oneOf:
             -  $ref: '#/components/schemas/Danno'
             -  $ref: '#/components/schemas/TiroSalvezzaEffetto'
@@ -1663,20 +2142,32 @@ components:
           type: string
         descrizione:
           type: string
-        tipo_azione:
+        tipo-azione:
           type: string
           enum:
             - Azione
             - Azione Bonus
             - Reazione
             - Azione Gratuita
+        uso-limitato:
+          type: object
+          properties:
+            volte-al-giorno:
+              type: integer
+              format: int32
+            ricarica:
+              type: string
+            recupero-riposo-lungo:
+              type: boolean
+            recupero-riposo-breve:
+              type: boolean
         tiro:
           type: object
           properties:
-            numero_dadi:
+            numero-dadi:
               type: integer
               format: int32
-            tipo_di_dado:
+            tipo-di-dado:
               $ref: '#/components/schemas/TipiDiDanno'
             bonus:
               type: integer
@@ -1704,7 +2195,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tratto'
-    Velocità:
+    Velocita:
       type: object
       properties:
         tipo:
@@ -1718,14 +2209,14 @@ components:
         valore:
           type: integer
           format: int32
-        unità_di_misura:
+        unità-di-misura:
           type: string
     Specie:
       type: object
       properties:
         id:
           type: string
-          description: l'id univoco che identifica la specie, in questo caso coincide con "<nome specie>_<nome documentazione di riferimento>"
+          description: l'id univoco che identifica la specie, in questo caso coincide con "<nome specie>-<nome documentazione di riferimento>"
         tipo:
           type: string
           description: identifica il tipo di creatura
@@ -1738,18 +2229,18 @@ components:
             $ref: '#/components/schemas/Lignaggio'
         taglia:
           $ref: '#/components/schemas/Taglia'
-        dettaglio_taglia:
+        dettaglio-taglia:
           type: string
           description: indica il range di misure in piedi della taglia della specie
         velocità:
           type: array
           description: indica la velocità di movimento della specie in piedi
           items:
-            $ref: '#/components/schemas/Velocità'
+            $ref: '#/components/schemas/Velocita'
         descrizione:
           type: string
           description: la descrizione della specie
-        documentazione_di_riferimento:
+        documentazione-di-riferimento:
           type: string
           description: la documentazione di riferimento in cui è presente la maestria
           enum:
@@ -1758,6 +2249,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tratto'
+        lingua:
+          type: array
+          items:
+            type: object
+            properties:
+              id-lingua:
+                type: string
     Abilita:
       type: object
       properties:
@@ -1791,7 +2289,7 @@ components:
         bonus:
           type: integer
           description: indica l'eventuale bonus all'abilità
-        caratteristica_collegata:
+        caratteristica-collegata:
           $ref: '#/components/schemas/Caratteristica'
     Senso:
       type: object
@@ -1804,12 +2302,6 @@ components:
           type: string
         gittata:
           type: string
-    Resistenza:
-      $ref: '#/components/schemas/TipiDiDanniECondizioni'
-    Immunita:
-      $ref: '#/components/schemas/TipiDiDanniECondizioni'
-    Vulnerabilita:
-      $ref: '#/components/schemas/TipiDiDanniECondizioni'
     TipiDiDanno:
       type: string
       enum:
@@ -1826,6 +2318,21 @@ components:
         - Forza
         - Psichico
         - Taglienti
+    Condizione:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          $ref: '#/components/schemas/Condizioni'
+        descrizione:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        effetto:
+          $ref: '#/components/schemas/Effetto'
     Condizioni:
       type: string
       enum:
@@ -1844,18 +2351,11 @@ components:
         - Trattenuto
         - Privo di sensi
     TipiDiDanniECondizioni:
-      type: object
-      properties:
-        tipo_di_danno:
-          description: indica la tipologia di danno, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
-          type: array
-          items:
-            $ref: '#/components/schemas/TipiDiDanno'
-        condizione:
-          description: indica la tipologia di considizione, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
-          type: array
-          items:
-            $ref: '#/components/schemas/Condizioni'
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/TipiDiDanno'
+          - $ref: '#/components/schemas/Condizioni'
     Tratto:
       type: object
       properties:
@@ -1865,50 +2365,62 @@ components:
           type: string
         descrizione:
           type: string
-        livello:
-          type: integer
-        id_incantesimo:
+        tipo-azione:
           type: string
-        competenza_expertise_abilità:
-          type: array
-          items:
-            $ref: '#/components/schemas/Abilita'
-        sensi:
-          type: array
-          items:
-             $ref: '#/components/schemas/Senso'
-        numero_di_utilizzi:
-          type: integer
-        reset_con_riposo_breve:
-          type: boolean
-        reset_con_riposo_lungo:
-          type: boolean
-        tempo_azione:
+          enum:
+            - Nessuna
+            - Azione Bonus
+            - Azione
+            - Reazione
+            - Azione Gratuita
+        tipo-di-sorgente:
           type: string
-        resistenze:
+          enum:
+            - Specie
+            - Background
+            - Classe
+            - Talento
+            - Oggetto
+            - Incantesimo
+            - Custom
+        id-dettaglio-sorgente:
+          type: string
+        uso-limitato:
+          type: object
+          properties:
+            volte-al-giorno:
+              type: integer
+              format: int32
+            ricarica:
+              type: string
+            recupero-riposo-lungo:
+              type: boolean
+            recupero-riposo-breve:
+              type: boolean
+        incantesimi:
           type: array
           items:
-             $ref: '#/components/schemas/Resistenza'
-        vulnerabilità:
-          type: array
-          items:
-            $ref: '#/components/schemas/Vulnerabilita'
-        immunità:
-          type: array
-          items:
-             $ref: '#/components/schemas/Immunita'
-        attacco:
+            $ref: '#/components/schemas/Incantesimo'
+        attacchi:
           type: array
           items:
              $ref: '#/components/schemas/Attacco'
-        effetto:
+        effetti:
           type: array
           items:
             $ref: '#/components/schemas/Effetto'
-        cura:
+        cure:
           type: array
           items:
             $ref: '#/components/schemas/Cura'
+        azioni:
+          type: array
+          items:
+            $ref: '#/components/schemas/Azione'
+        risorse:
+          type: array
+          items:
+            $ref: '#/components/schemas/Risorsa'
     Maestria:
       type: object
       required:
@@ -1917,11 +2429,11 @@ components:
         - descrizione
         - armi
         - effetto
-        - documentazione_di_riferimento
+        - documentazione-di-riferimento
       properties:
         id:
           type: string
-          description: l'id univoco della maestria, in questo caso coincide con "<nome naestria>_<nome documentazione di riferimento>"
+          description: l'id univoco della maestria, in questo caso coincide con "<nome naestria>-<nome documentazione di riferimento>"
         nome:
           type: string
           description: il nome della maestria
@@ -1935,7 +2447,7 @@ components:
             type: string
         effetto:
           $ref: "#/components/schemas/Effetto"
-        documentazione_di_riferimento:
+        documentazione-di-riferimento:
           type: string
           description: la documentazione di riferimento in cui è presente la maestria
           enum:
@@ -1947,7 +2459,7 @@ components:
         properties:
           nome:
             type: string
-          si_applica_a:
+          si-applica-a:
             type: array
             items:
               type: string
@@ -1979,21 +2491,22 @@ components:
           -  $ref: '#/components/schemas/ModificatoreIniziativa'
           -  $ref: '#/components/schemas/Lingua'
           -  $ref: '#/components/schemas/ModificatoreCompetenzaTiroSalvezza'
-          -  $ref: '#/components/schemas/ModificatoreCompetenzaAbilità'
+          -  $ref: '#/components/schemas/ModificatoreCompetenzaAbilita'
           -  $ref: '#/components/schemas/ModificatoreCompetenzaArma'
           -  $ref: '#/components/schemas/ModificatoreCompetenzaArmatura'
           -  $ref: '#/components/schemas/ModificatoreCompetenzaUtensile'
           -  $ref: '#/components/schemas/ModificatoreValoreTiroSalvezza'
-          -  $ref: '#/components/schemas/ModificatoreAbilità'
-          -  $ref: '#/components/schemas/ModificatoreGlobaleClasseDifficoltàIncantesimiTiroPerColpireIncantesimi'
+          -  $ref: '#/components/schemas/ModificatoreAbilita'
+          -  $ref: '#/components/schemas/ModificatoreGlobaleClasseDifficoltaIncantesimiTiroPerColpireIncantesimi'
           -  $ref: '#/components/schemas/ModificatoreGlobaleTiroPerColpireArma'
-          -  $ref: '#/components/schemas/ModificatoreClasseDifficoltàCustom'
-    ModificatoreClasseDifficoltàCustom:
+          -  $ref: '#/components/schemas/ModificatoreClasseDifficoltaCustom'
+          -  $ref: '#/components/schemas/ModificatoreVelocita'
+    ModificatoreClasseDifficoltaCustom:
       type: object
       properties:
         nome:
           type: string
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2013,10 +2526,10 @@ components:
             - Melee
             - Distanza
             - Tutte
-        bonus_tiro_per_colpire:
+        bonus-tiro-per-colpire:
           type: integer
           format: int32
-    ModificatoreGlobaleClasseDifficoltàIncantesimiTiroPerColpireIncantesimi:
+    ModificatoreGlobaleClasseDifficoltaIncantesimiTiroPerColpireIncantesimi:
       type: object
       properties:
         tipo:
@@ -2027,7 +2540,7 @@ components:
         valore:
           type: integer
           format: int32
-    ModificatoreVelocità:
+    ModificatoreVelocita:
       type: object
       properties:
         tipo:
@@ -2038,7 +2551,7 @@ components:
             - Nuoto
             - Scavo
             - Arrampicata
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2049,7 +2562,7 @@ components:
         valore:
           type: integer
           format: int32
-    ModificatoreAbilità:
+    ModificatoreAbilita:
       type: object
       properties:
         abilità:
@@ -2062,7 +2575,7 @@ components:
       properties:
         caratteristica:
           $ref: '#/components/schemas/Caratteristica'
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2076,7 +2589,7 @@ components:
     ModificatoreCompetenzaUtensile:
       type: object
       properties:
-        id_utensile:
+        id-utensile:
           type: string
         competenza:
           type: string
@@ -2088,7 +2601,7 @@ components:
     ModificatoreCompetenzaArmatura:
       type: object
       properties:
-        id_armatura:
+        id-armatura:
           type: string
         competenza:
           type: string
@@ -2100,7 +2613,7 @@ components:
     ModificatoreCompetenzaArma:
       type: object
       properties:
-        id_arma:
+        id-arma:
           type: string
         competenza:
           type: string
@@ -2109,7 +2622,7 @@ components:
             - Mezza Competenza
             - Competenza
             - Expertise
-    ModificatoreCompetenzaAbilità:
+    ModificatoreCompetenzaAbilita:
       type: object
       properties:
         abilità:
@@ -2142,6 +2655,13 @@ components:
           type: string
         descrizione:
           type: string
+        specie-associate:
+          type: array
+          items:
+            type: object
+            properties:
+              id-specie:
+                type: string
     ModificatoreIniziativa:
       type: object
       properties:
@@ -2151,13 +2671,13 @@ components:
     ModificatorePuntiVitaMassimi:
       type: object
       properties:
-        punti_vita:
+        punti-vita:
           type: integer
           format: int32
     ModificatoreSlotArmonizzazione:
       type: object
       properties:
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2194,7 +2714,7 @@ components:
     ModificatoreClasseArmatura:
       type: object
       properties:
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2210,7 +2730,7 @@ components:
       properties:
         caratteristica:
           $ref: '#/components/schemas/Caratteristica'
-        tipo_modifica:
+        tipo-modifica:
           type: string
           enum:
             - minimo
@@ -2237,7 +2757,7 @@ components:
           enum:
             - Vantaggio
             - Svantaggio
-        si_applica_a:
+        si-applica-a:
           type: string
           enum:
             - check abilità
@@ -2247,15 +2767,15 @@ components:
             - tiro iniziativa
         dettaglio:
           oneOf:
-            - $ref: '#/components/schemas/VantaggioSvantaggioCheckAbilità'
+            - $ref: '#/components/schemas/VantaggioSvantaggioCheckAbilita'
             - $ref: '#/components/schemas/VantaggioSvantaggioTiroPerColpire'
             - $ref: '#/components/schemas/VantaggioSvantaggioTiroIniziativa'
             - $ref: '#/components/schemas/VantaggioSvantaggioTiroSalvezza'
             - $ref: '#/components/schemas/VantaggioSvantaggioCheckCaratteristica'
           discriminator:
-            propertyName: si_applica_a
+            propertyName: si-applica-a
             mapping:
-              'check abilità': '#/components/schemas/VantaggioSvantaggioCheckAbilità'
+              'check abilità': '#/components/schemas/VantaggioSvantaggioCheckAbilita'
               'tiro per colpire': '#/components/schemas/VantaggioSvantaggioTiroPerColpire'
               'tiro iniziativa': '#/components/schemas/VantaggioSvantaggioTiroIniziativa'
               'tiro salvezza': '#/components/schemas/VantaggioSvantaggioTiroSalvezza'
@@ -2266,7 +2786,9 @@ components:
     VantaggioSvantaggioCheckCaratteristica:
       type: object
       properties:
-        caratteristica_bersaglio:
+        situazione:
+          type: string
+        caratteristica-bersaglio:
           oneOf:
             - type: string
               enum:
@@ -2275,7 +2797,9 @@ components:
     VantaggioSvantaggioTiroPerColpire:
       type: object
       properties:
-        tiro_per_colpire_bersaglio:
+        situazione:
+          type: string
+        tiro-per-colpire-bersaglio:
           enum:
             - Tutti
             - Melee
@@ -2283,19 +2807,26 @@ components:
             - Incantesimo
     VantaggioSvantaggioTiroIniziativa:
       type: object
+      properties:
+        situazione:
+          type: string
     VantaggioSvantaggioTiroSalvezza:
       type: object
       properties:
-        caratteristica_bersaglio:
+        situazione:
+          type: string
+        caratteristica-bersaglio:
           oneOf:
             - type: string
               enum:
                 - Tutte
             - $ref: '#/components/schemas/Caratteristica'
-    VantaggioSvantaggioCheckAbilità:
+    VantaggioSvantaggioCheckAbilita:
       type: object
       properties:
-        abilità_bersagio:
+        situazione:
+          type: string
+        abilità-bersagio:
           oneOf:
             - type: string
               enum:
@@ -2317,21 +2848,21 @@ components:
       items:
         type: object
         required:
-          - tipo_di_danno
-          - numero_di_dadi
-          - tipo_di_dado
+          - tipo-di-danno
+          - numero-di-dadi
+          - tipo-di-dado
         properties:
-          tipo_di_danno:
+          tipo-di-danno:
             description: indica la tipologia di danno, nel caso in cui vi sia più di una tipologia associata, viene considerata come "OR" e non come "AND"
             type: array
             items:
               $ref: '#/components/schemas/TipiDiDanno'
-          numero_di_dadi:
+          numero-di-dadi:
             description: il numero di dadi associati al danno
             type: integer
-          tipo_di_dado:
+          tipo-di-dado:
             $ref: '#/components/schemas/TipiDiDado'
-          caratteristica_associata:
+          caratteristica-associata:
             oneOf:
               - type: string
                 enum:
@@ -2365,11 +2896,11 @@ components:
     TiroSalvezzaEffetto:
       type: object
       required:
-        - tiro_salvezza
+        - tiro-salvezza
         - successo
         - fallimento
       properties:
-        tiro_salvezza:
+        tiro-salvezza:
           $ref: '#/components/schemas/Caratteristica'
         successo:
           $ref: '#/components/schemas/SuccessoTiroSalvezza'
@@ -2379,7 +2910,7 @@ components:
       description: descrive in modalità parametrica l'effetto dell'incantesimo
       type: object
       properties:
-        ripetizione_effetto:
+        ripetizione-effetto:
           type: integer
         effetto:
           oneOf:
@@ -2392,18 +2923,18 @@ components:
         - id
         - name
         - livello
-        - scuola_di_magia
-        - tempo_di_lancio
+        - scuola-di-magia
+        - tempo-di-lancio
         - gittata
         - componenti
         - durata
         - descrizione
         - classi
-        - documentazione_di_riferimento
+        - documentazione-di-riferimento
       properties:
         id:
           type: string
-          description: l'identificativo univoco dell'incantesimo, la sintassi è "<nome incantesimo>_<nome documentazione di riferimento>"
+          description: l'identificativo univoco dell'incantesimo, la sintassi è "<nome incantesimo>-<nome documentazione di riferimento>"
         nome:
           type: string
           description: il nome dell'incantesimo
@@ -2413,7 +2944,7 @@ components:
           format: int32
           minimum: 0
           maximum: 9
-        scuola_di_magia:
+        scuola-di-magia:
           type: string
           description: la scuola di magia associata all'incantesimo
           enum:
@@ -2425,9 +2956,9 @@ components:
               - Illusione
               - Transmutazione
               - Incantamento
-        tempo_di_lancio:
+        tempo-di-lancio:
           type: string
-          description: indica il tempo di lancio dell'incantesimo, questo parametro può essere valorizzato anche con "Rituale" per ricercare incantesimi che possono essere lanciati in questa modalità 
+          description: indica il tempo di lancio dell'incantesimo, questo parametro può essere valorizzato anche con "Rituale" per ricercare incantesimi che possono essere lanciati in questa modalità
         gittata:
           type: string
           description: la gittata dell'incantesimo, in piedi
@@ -2437,13 +2968,13 @@ components:
         concentrazione:
           type: boolean
           description: indica se l'incantesimo richieda o meno concentrazione
-        sempre_preparato:
+        sempre-preparato:
           type: boolean
           description: indica se l'incantesimo sia sempre prerato (è vero nel caso dei truccheti)
         rituale:
           type: boolean
           description: indica se l'incantesimo possa essere lanciato come rituale o meno
-        effetto_incantesimo:
+        effetto-incantesimo:
           $ref: '#/components/schemas/EffettoIncantesimo'
         componenti:
           type: array
@@ -2455,7 +2986,7 @@ components:
               - V
               - S
               - M
-        componenti_materiali:
+        componenti-materiali:
           type: string
           description: il tipo di componenti materiali richieste per lanciare l'incantesimo
         durata:
@@ -2464,17 +2995,30 @@ components:
         descrizione:
           type: string
           description: la descrizione degli effetti dell'incantesimo al suo livello base
-        effetto_livello_maggiore:
+        effetto-livello-maggiore:
           $ref: '#/components/schemas/EffettoIncantesimo'
         classi:
-          type: string
-          description: la classe o l'elenco delle classi separate da ',' associate all'incantesimo
-        documentazione_di_riferimento:
+          type: array
+          items:
+            type: string
+            description: la classe o l'elenco delle classi
+        uso-limitato:
+          type: object
+          properties:
+            volte-al-giorno:
+              type: integer
+              format: int32
+            ricarica:
+              type: string
+            recupero-riposo-lungo:
+              type: boolean
+            recupero-riposo-breve:
+              type: boolean
+        documentazione-di-riferimento:
           type: string
           description: la documentazione di riferimento in cui è presente l'incantesimo
           enum:
             - DND 2024
-        
     Cura:
       type: object
       properties:
@@ -2482,21 +3026,21 @@ components:
           oneOf:
             - type: object
               properties:
-                id_incantesimo:
+                id-incantesimo:
                   type: string
-              required: [ id_incantesimo ]
+              required: [ id-incantesimo ]
             - type: object
               properties:
-                id_oggetto:
+                id-oggetto:
                   type: string
-              required: [ id_oggetto ]
+              required: [ id-oggetto ]
         nome:
           type: string
         id:
           type: string
         descrizione:
           type: string
-        tipo_di_azione:
+        tipo-di-azione:
           type: string
           enum:
             - Azione
@@ -2505,17 +3049,29 @@ components:
             - Azione Gratuita
         bonus:
           type: integer
-        numero_di_dadi:
+        numero-di-dadi:
           description: il numero di dadi associati al danno
           type: integer
-        caratteristica_associata:
+        uso-limitato:
+          type: object
+          properties:
+            volte-al-giorno:
+              type: integer
+              format: int32
+            ricarica:
+              type: string
+            recupero-riposo-lungo:
+              type: boolean
+            recupero-riposo-breve:
+              type: boolean
+        caratteristica-associata:
           oneOf:
             - type: string
               enum:
                 - Nessuna
                 - Automatica
             - $ref: '#/components/schemas/Caratteristica'
-        tipo_di_dado:
+        tipo-di-dado:
           $ref: '#/components/schemas/TipiDiDado'
     Equipaggiamento:
       type: object
@@ -2535,40 +3091,41 @@ components:
           type: string
         nome:
           type: string
-        caratteristiche_associate:
+        caratteristiche-associate:
           type: array
           items:
             $ref: '#/components/schemas/Caratteristica'
-        id_talento:
+        id-talento:
           type: string
-        competenza_abilità:
+        competenza-abilità:
           type: array
           items:
             $ref: '#/components/schemas/Abilita'
-        competenza_utensili:
+        competenza-utensili:
           type: array
           items:
             type: object
             properties:
-              id_utensile:
+              id-utensile:
                 type: string
         equipaggiamento:
           type: object
           properties:
-            opzione_a:
+            opzione-a:
               type: array
               items:
                 oneOf:
                   - $ref: "#/components/schemas/Oggetto"
-            opzione_b:
+            opzione-b:
               $ref: "#/components/schemas/Importo"
     Valuta:
       type: object
       properties:
-        tipo_moneta:
+        tipo-moneta:
           type: string
-        valore_in_monete_oro:
-          type: float
+        valore-in-monete-oro:
+          type: integer
+          format: float
     Importo:
       type: object
       properties:
@@ -2585,7 +3142,7 @@ components:
           type: string
         competenza:
           type: boolean
-        caratteristica_associata:
+        caratteristica-associata:
           $ref: '#/components/schemas/Caratteristica'
         utilizzo:
           type: array
@@ -2594,7 +3151,7 @@ components:
             properties:
               descrizione:
                 type: string
-              classe_difficoltà:
+              classe-difficoltà:
                 type: integer
                 format: int32
         peso:
@@ -2603,9 +3160,9 @@ components:
             valore:
               type: integer
               format: int64
-            unità_di_misura:
+            unità-di-misura:
               type: string
-        tipo_di_creazione:
+        tipo-di-creazione:
           type: array
           items:
             type: string
@@ -2620,7 +3177,7 @@ components:
           type: string
         nome:
           type: string
-        documentazione_di_riferimento:
+        documentazione-di-riferimento:
           type: string
           enum:
             - DND 2024
@@ -2633,23 +3190,23 @@ components:
             - Media
             - Pesante
             - Scudo
-        mani_occupate:
+        mani-occupate:
           type: integer
           format: int32
           maximum: 1
           minimum: 0
-        classe_armatura:
+        classe-armatura:
           type: object
           properties:
             valore:
               type: integer
               format: int32
-            bonus_caratteristica:
+            bonus-caratteristica:
               $ref: '#/components/schemas/Caratteristica'
-            valore_forza_richiesto:
+            valore-forza-richiesto:
               type: integer
               format: int32
-            svantaggio_stealth:
+            svantaggio-stealth:
               type: boolean
             peso:
               type: object
@@ -2657,7 +3214,7 @@ components:
                 valore:
                   type: integer
                   format: int64
-                unità_di_misura:
+                unità-di-misura:
                   type: string
             costo:
               $ref: '#/components/schemas/Importo'
@@ -2672,7 +3229,7 @@ components:
           type: string
         descrizione:
           type: string
-        documentazione_di_riferimento:
+        documentazione-di-riferimento:
           type: string
           enum:
             - DND 2024
@@ -2686,7 +3243,7 @@ components:
           enum:
             - Melee
             - Distanza
-        mani_occupate:
+        mani-occupate:
           type: integer
           format: int32
           maximum: 2
@@ -2697,7 +3254,7 @@ components:
             valore:
               type: integer
               format: int64
-            unità_di_misura:
+            unità-di-misura:
               type: string
         danno:
           type: array
@@ -2706,14 +3263,14 @@ components:
         proprietà:
           type: array
           items:
-            $ref: "#/components/schemas/ProprietàArma"
+            $ref: "#/components/schemas/ProprietaArma"
         competenza:
           type: boolean
-        id_maestria:
+        id-maestria:
           type: string
         costo:
           $ref: "#/components/schemas/Importo"
-    ProprietàArma:
+    ProprietaArma:
       type: object
       properties:
         nome:
@@ -2731,7 +3288,7 @@ components:
           type: string
         descrizione:
           type: string
-        documentazione_di_riferimento:
+        documentazione-di-riferimento:
           type: string
           enum:
             - DND 2024
@@ -2743,7 +3300,7 @@ components:
             valore:
               type: integer
               format: int64
-            unità_di_misura:
+            unità-di-misura:
               type: string
         varietà:
           type: array
@@ -2758,7 +3315,7 @@ components:
                   valore:
                     type: integer
                     format: int64
-                  unità_di_misura:
+                  unità-di-misura:
                     type: string
               costo:
                 $ref: "#/components/schemas/Importo"
@@ -2788,7 +3345,7 @@ components:
             - Confortevole
             - Benestante
             - Aristocratico
-        costo_al_giorno:
+        costo-al-giorno:
           $ref: "#/components/schemas/Importo"
     CiboBevandeAlloggio:
       type: object
@@ -2801,7 +3358,7 @@ components:
         proprietà:
           oneOf:
             - $ref: "#/components/schemas/Alloggio"
-            $ref: "#/components/schemas/CiboBevanda"
+            - $ref: "#/components/schemas/CiboBevanda"
           discriminator:
             propertyName: tipo
             mapping:
@@ -2822,6 +3379,7 @@ components:
             - Oggetto Magico
             - Attrezzatura da Avventuriero
             - Cibo, Bevanda o Alloggio
+            - Cavalcature o Veicoli
         proprietà:
           oneOf:
             - $ref: "#/components/schemas/Utensile"
@@ -2829,6 +3387,7 @@ components:
             - $ref: "#/components/schemas/Arma"
             - $ref: "#/components/schemas/AttrezzaturaAvventuriero"
             - $ref: "#/components/schemas/CiboBevandeAlloggio"
+            - $ref: "#/components/schemas/CavalacaturaVeicolo"
           discriminator:
             propertyName: tipo
             mapping:
@@ -2837,4 +3396,416 @@ components:
               'Arma': "#/components/schemas/Arma"
               'Attrezzatura da Avventuriero': "#/components/schemas/AttrezzaturaAvventuriero"
               'Cibo, Bevanda o Alloggio': "#/components/schemas/CiboBevandeAlloggio"
-
+              'Cavalcature o Veicoli': "#/components/schemas/CavalacaturaVeicolo"
+    Allineamento:
+      type: string
+      enum:
+        - Legale Buono
+        - Neutrale Buono
+        - Caotico Buono
+        - Neutrale
+        - Caotico Neutrale
+        - Legale Malvagio
+        - Neutrale Malvagio
+        - Caotico Malvagio
+    Divinita:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        dominio:
+          type: string
+        descrizione:
+          type: string
+        pantheon:
+          type: string
+        categoria:
+          type: string
+        allineamento:
+          $ref: '#/components/schemas/Allineamento'
+        simbolo:
+          type: array
+          items:
+            type: string
+    Cavalcatura:
+      type: object
+    Veicolo:
+      type: object
+    CavalacaturaVeicolo:
+      type: object
+      properties:
+        tipo:
+          type: string
+          enum:
+            - Cavalcatura
+            - Veicolo
+        proprietà:
+          oneOf:
+            - $ref: "#/components/schemas/Cavalcatura"
+            - $ref: "#/components/schemas/Veicolo"
+          discriminator:
+            propertyName: tipo
+            mapping:
+              'Cavalcatura': "#/components/schemas/Cavalcatura"
+              'Veicolo': "#/components/schemas/Veicolo"
+    Talento:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        categoria:
+          type: string
+          enum:
+            - Origine
+            - Generale
+            - Dono Epico
+        sotto-categoria:
+          type: string
+        ripetibile:
+          type: boolean
+        prerequisiti:
+          type: array
+          items:
+            type: string
+        benefici:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tratto'
+    TiroDiDado:
+      type: object
+      properties:
+        numero-di-dadi:
+          description: il numero di dadi associati al danno
+          type: integer
+        tipo-di-dado:
+          $ref: '#/components/schemas/TipiDiDado'
+    ValoreFisso:
+      type: object
+      properties:
+        valore:
+          type: integer
+          format: int32
+    Risorsa:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        valore-attuale:
+          type: integer
+          format: int32
+        valore-massimo:
+          type: integer
+          format: int32
+        reset-con-riposo-breve:
+          type: boolean
+        reset-con-riposo-lungo:
+          type: boolean
+        reset-alba:
+          type: boolean
+        tipo-recupero:
+          type: string
+          enum:
+            - Pieno
+            - Metà
+            - Fisso
+            - Tiro di Dado
+        proprietà-recupero:
+          oneOf:
+            - $ref: '#/components/schemas/TiroDiDado'
+            - $ref: '#/components/schemas/ValoreFisso'
+          discriminator:
+            propertyName: tipo-recupero
+            mapping:
+              'Fisso': '#/components/schemas/ValoreFisso'
+              'Tiro di Dado': '#/components/schemas/TiroDiDado'
+    TipoCreatura:
+      type: string
+      enum:
+        - Aberrazione
+        - Bestia
+        - Celestiale
+        - Costrutto
+        - Drago
+        - Elementale
+        - Folletto
+        - Gigante
+        - Umanoide
+        - Mostruosità
+        - Demone
+        - Pianta
+        - Non Morto
+        - Melma
+    Mostro:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        taglia:
+          $ref: '#/components/schemas/Taglia'
+        allineamento:
+          $ref: '#/components/schemas/Allineamento'
+        tipo-creatura:
+          $ref: '#/components/schemas/TipoCreatura'
+        sotto-tipo:
+          type: string
+        classe-armatura:
+          type: integer
+          format: int32
+        modificatore-iniziativa:
+          type: integer
+          format: int32
+        grado-sfida:
+          type: integer
+          format: int32
+        velocità:
+          type: array
+          items:
+            $ref: '#/components/schemas/Velocita'
+        caratteristiche:
+          type: array
+          items:
+            type: object
+            properties:
+              caratteristica:
+                $ref: '#/components/schemas/Caratteristica'
+              valore:
+                type: integer
+                format: int32
+              modificatore:
+                type: integer
+                format: int32
+              tiro-salvezza:
+                type: integer
+                format: int32
+        abilità:
+          type: array
+          items:
+            type: object
+            properties:
+              abilità:
+                $ref: '#/components/schemas/Abilita'
+              modificatore:
+                type: integer
+                format: int32
+        resistenze:
+         $ref: '#/components/schemas/TipiDiDanniECondizioni'
+        immunità:
+          $ref: '#/components/schemas/TipiDiDanniECondizioni'
+        vulnerabilità:
+          $ref: '#/components/schemas/TipiDiDanniECondizioni'
+        sensi:
+          type: array
+          items:
+            $ref: '#/components/schemas/Senso'
+        linguaggi:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lingua'
+        punti-esperienza:
+          type: array
+          items:
+            type: object
+            properties:
+              valore:
+                type: integer
+                format: int32
+              situazione:
+                type: string
+        bonus-competenza:
+          type: integer
+          format: int32
+        tratti:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tratto'
+        attacchi:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attacco'
+        azioni:
+          type: array
+          items:
+            $ref: '#/components/schemas/Azione'
+        incantesimi:
+          type: array
+          items:
+            $ref: '#/components/schemas/Incantesimo'
+        cure:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cura'
+        risorse:
+          type: array
+          items:
+              $ref: '#/components/schemas/Risorsa'
+        equipaggiamento:
+          $ref: '#/components/schemas/Equipaggiamento'
+        azioni-leggendarie:
+          type: object
+          properties:
+            utilizzo:
+              type: object
+              properties:
+                numero-utilizzi:
+                  type: integer
+                  format: int32
+                situazione:
+                  type: string
+            descrizione:
+              type: string
+            elenco-azioni:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Attacco'
+                  - $ref: '#/components/schemas/Azione'
+                  - $ref: '#/components/schemas/Effetto'
+                  - $ref: '#/components/schemas/Cura'
+                  - $ref: '#/components/schemas/Incantesimo'
+    Classe:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        dado-vita:
+          $ref: '#/components/schemas/TipiDiDado'
+        elenco-sottoclassi:
+          type: array
+          items:
+            type: object
+            properties:
+              id-sottoclasse:
+                type: string
+        equipaggiamento-id-partenza:
+          type: object
+          properties:
+            opzione-a:
+              type: array
+              items:
+                oneOf:
+                  - $ref: "#/components/schemas/Oggetto"
+            opzione-b:
+              $ref: "#/components/schemas/Importo"
+        proprietà-di-classe:
+          type: array
+          items:
+            type: object
+            properties:
+              livello-classe:
+                type: integer
+                format: int32
+              tratto-di-classe:
+                $ref: '#/components/schemas/Tratto'
+              incantesimi-di-classe:
+                type: object
+                properties:
+                  slot-incantesimi:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        numero-slot:
+                          type: integer
+                          format: int32
+                        livello-slot-incantesimo:
+                          type: integer
+                          format: int32
+                  incantesimi-preparati:
+                    type: integer
+                    format: int32
+    SottoClasse:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024
+        id-classe-associata:
+          type: string
+        proprietà-di-sottoclasse:
+          type: array
+          items:
+            type: object
+            properties:
+              livello-classe:
+                type: integer
+                format: int32
+              tratto-di-classe:
+                $ref: '#/components/schemas/Tratto'
+              incantesimi-di-classe:
+                type: object
+                properties:
+                  slot-incantesimi:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        numero-slot:
+                          type: integer
+                          format: int32
+                        livello-slot-incantesimo:
+                          type: integer
+                          format: int32
+                  incantesimi-preparati:
+                    type: integer
+                    format: int32
+    Regola:
+      type: object
+      properties:
+        id:
+          type: string
+        nome:
+          type: string
+        descrizione:
+          type: string
+        sottopunti:
+          type: array
+          items:
+            type: object
+            properties:
+              nome:
+                type: string
+              descrizione:
+                type: string
+        documentazione-di-riferimento:
+          type: string
+          enum:
+            - DND 2024

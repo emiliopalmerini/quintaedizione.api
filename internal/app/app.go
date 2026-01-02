@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -19,6 +21,7 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
+	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
 )
 
 type App struct {
@@ -58,12 +61,31 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 func (a *App) setupRoutes() {
 	r := chi.NewRouter()
 
+	// Base middleware
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
+	r.Use(custommw.Logger(a.deps.Logger))
+	r.Use(middleware.Compress(5))
+
+	// CORS
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   a.deps.Config.CORS.AllowedOrigins,
+		AllowedMethods:   a.deps.Config.CORS.AllowedMethods,
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-API-Key"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           a.deps.Config.CORS.MaxAge,
+	}))
+
+	// Rate limiting
+	if a.deps.Config.RateLimit.Enabled {
+		r.Use(httprate.LimitByIP(a.deps.Config.RateLimit.RequestsPerMinute, time.Minute))
+	}
+
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 
+	// Public endpoints
 	healthHandler := health.NewHandler(a.deps.DB.DB, a.deps.Config.Version)
 	r.Get("/health", healthHandler.ServeHTTP)
 	r.Get("/health/live", healthHandler.Liveness)
@@ -71,7 +93,10 @@ func (a *App) setupRoutes() {
 		http.ServeFile(w, r, "swagger/quintaedizioneswagger")
 	})
 
+	// Protected API routes
 	r.Route("/v1", func(r chi.Router) {
+		r.Use(custommw.APIKey(a.deps.Config.APIKey))
+
 		classiRepo := persistence.NewPostgresRepository(a.deps.DB)
 		classiService := classi.NewService(classiRepo, a.deps.Logger)
 		classiHandler := transports.NewHandler(classiService)

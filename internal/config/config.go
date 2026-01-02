@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Config struct {
-	Version  string
-	Server   ServerConfig
-	Database DatabaseConfig
+	Version   string
+	Server    ServerConfig
+	Database  DatabaseConfig
+	CORS      CORSConfig
+	RateLimit RateLimitConfig
+	APIKey    string
 }
 
 type ServerConfig struct {
@@ -25,6 +29,17 @@ type DatabaseConfig struct {
 	MaxOpenConns    int
 	MaxIdleConns    int
 	ConnMaxLifetime time.Duration
+}
+
+type CORSConfig struct {
+	AllowedOrigins []string
+	AllowedMethods []string
+	MaxAge         int
+}
+
+type RateLimitConfig struct {
+	RequestsPerMinute int
+	Enabled           bool
 }
 
 func Load() (*Config, error) {
@@ -42,6 +57,16 @@ func Load() (*Config, error) {
 			MaxIdleConns:    getIntEnv("DB_MAX_IDLE_CONNS", 5),
 			ConnMaxLifetime: getDurationEnv("DB_CONN_MAX_LIFETIME", 5*time.Minute),
 		},
+		CORS: CORSConfig{
+			AllowedOrigins: getSliceEnv("CORS_ALLOWED_ORIGINS", []string{"*"}),
+			AllowedMethods: getSliceEnv("CORS_ALLOWED_METHODS", []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+			MaxAge:         getIntEnv("CORS_MAX_AGE", 300),
+		},
+		RateLimit: RateLimitConfig{
+			RequestsPerMinute: getIntEnv("RATE_LIMIT_RPM", 60),
+			Enabled:           getBoolEnv("RATE_LIMIT_ENABLED", true),
+		},
+		APIKey: os.Getenv("API_KEY"),
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -78,6 +103,31 @@ func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
 	if value := os.Getenv(key); value != "" {
 		if d, err := time.ParseDuration(value); err == nil {
 			return d
+		}
+	}
+	return defaultValue
+}
+
+func getBoolEnv(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if b, err := strconv.ParseBool(value); err == nil {
+			return b
+		}
+	}
+	return defaultValue
+}
+
+func getSliceEnv(key string, defaultValue []string) []string {
+	if value := os.Getenv(key); value != "" {
+		parts := strings.Split(value, ",")
+		result := make([]string, 0, len(parts))
+		for _, p := range parts {
+			if trimmed := strings.TrimSpace(p); trimmed != "" {
+				result = append(result, trimmed)
+			}
+		}
+		if len(result) > 0 {
+			return result
 		}
 	}
 	return defaultValue

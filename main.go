@@ -23,6 +23,7 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
 )
 
 func main() {
@@ -71,8 +72,14 @@ func run(logger *slog.Logger) error {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 
-	r.Get("/health", handleHealth)
+	healthHandler := health.NewHandler(db.DB, cfg.Version)
+	r.Get("/health", healthHandler.ServeHTTP)
+	r.Get("/health/live", healthHandler.Liveness)
 	r.Mount("/classi", handler.Routes())
+
+	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "swagger/quintaedizioneswagger")
+	})
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
@@ -133,8 +140,3 @@ func runMigrations(db *sqlx.DB, logger *slog.Logger) error {
 	return nil
 }
 
-func handleHealth(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status":"ok"}`)
-}

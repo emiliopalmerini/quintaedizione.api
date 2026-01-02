@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Version  string
 	Server   ServerConfig
 	Database DatabaseConfig
 }
@@ -28,6 +29,7 @@ type DatabaseConfig struct {
 
 func Load() (*Config, error) {
 	cfg := &Config{
+		Version: getEnv("APP_VERSION", "dev"),
 		Server: ServerConfig{
 			Port:         getEnv("PORT", "8080"),
 			ReadTimeout:  getDurationEnv("SERVER_READ_TIMEOUT", 10*time.Second),

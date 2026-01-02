@@ -93,7 +93,7 @@ paths:
             type: string
             enum:
               - asc
-               - desc
+              - desc
         - name: $limit
           description: il numero massimo di elementi da restituire
           in: query
@@ -637,7 +637,7 @@ paths:
                 required:
                   - pagina
                   - numero-di-elementi
-                  - maestrie
+                  - classi
                 properties:
                   pagina:
                     type: integer
@@ -2168,7 +2168,7 @@ components:
               type: integer
               format: int32
             tipo-di-dado:
-              $ref: '#/components/schemas/TipiDiDanno'
+              $ref: '#/components/schemas/TipiDiDado'
             bonus:
               type: integer
               format: int32
@@ -2921,7 +2921,7 @@ components:
       type: object
       required:
         - id
-        - name
+        - nome
         - livello
         - scuola-di-magia
         - tempo-di-lancio

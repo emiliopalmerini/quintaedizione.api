@@ -1,0 +1,8 @@
+{
+  "name": "background",
+  "name_plural": "background",
+  "name_capital": "Background",
+  "name_plural_cap": "Background",
+  "table_name": "background",
+  "route_param": "id-background"
+}

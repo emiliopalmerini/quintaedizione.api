@@ -1,0 +1,8 @@
+{
+  "name": "divinita",
+  "name_plural": "divinita",
+  "name_capital": "Divinita",
+  "name_plural_cap": "Divinita",
+  "table_name": "divinita",
+  "route_param": "id-divinita"
+}

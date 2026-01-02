@@ -1,0 +1,8 @@
+{
+  "name": "incantesimi",
+  "name_plural": "incantesimi",
+  "name_capital": "Incantesimo",
+  "name_plural_cap": "Incantesimi",
+  "table_name": "incantesimi",
+  "route_param": "id-incantesimo"
+}

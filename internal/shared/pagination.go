@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -25,7 +27,14 @@ type ListFilter struct {
 	Offset                      int
 }
 
-func NewListFilterFromRequest(r *http.Request) ListFilter {
+type listFilterRequest struct {
+	Nome   string `validate:"max=100"`
+	Sort   string `validate:"omitempty,oneof=asc desc"`
+	Limit  int    `validate:"min=1,max=100"`
+	Offset int    `validate:"min=0"`
+}
+
+func NewListFilterFromRequest(r *http.Request) (ListFilter, error) {
 	query := r.URL.Query()
 
 	filter := ListFilter{
@@ -34,34 +43,53 @@ func NewListFilterFromRequest(r *http.Request) ListFilter {
 		Offset: 0,
 	}
 
-	if nome := query.Get("nome"); nome != "" {
-		filter.Nome = &nome
+	req := listFilterRequest{
+		Nome:   query.Get("nome"),
+		Sort:   query.Get("sort"),
+		Limit:  DefaultLimit,
+		Offset: 0,
+	}
+
+	if limit := query.Get("$limit"); limit != "" {
+		l, err := strconv.Atoi(limit)
+		if err != nil {
+			return filter, fmt.Errorf("$limit must be a valid integer")
+		}
+		req.Limit = l
+	}
+
+	if offset := query.Get("$offset"); offset != "" {
+		o, err := strconv.Atoi(offset)
+		if err != nil {
+			return filter, fmt.Errorf("$offset must be a valid integer")
+		}
+		req.Offset = o
+	}
+
+	if err := ValidateStruct(req); err != nil {
+		errs := FormatValidationErrors(err)
+		if len(errs) > 0 {
+			return filter, errors.New(errs[0])
+		}
+		return filter, err
+	}
+
+	if req.Nome != "" {
+		filter.Nome = &req.Nome
 	}
 
 	if docs := query["documentazione-di-riferimento"]; len(docs) > 0 {
 		filter.DocumentazioneDiRiferimento = docs
 	}
 
-	if sort := query.Get("sort"); sort == "desc" {
+	if req.Sort == "desc" {
 		filter.Sort = SortDesc
 	}
 
-	if limit := query.Get("$limit"); limit != "" {
-		if l, err := strconv.Atoi(limit); err == nil && l > 0 {
-			if l > MaxLimit {
-				l = MaxLimit
-			}
-			filter.Limit = l
-		}
-	}
+	filter.Limit = req.Limit
+	filter.Offset = req.Offset
 
-	if offset := query.Get("$offset"); offset != "" {
-		if o, err := strconv.Atoi(offset); err == nil && o >= 0 {
-			filter.Offset = o
-		}
-	}
-
-	return filter
+	return filter, nil
 }
 
 func (f ListFilter) Page() int {

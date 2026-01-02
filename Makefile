@@ -7,7 +7,7 @@ vet: fmt
 	go vet ./...
 
 build: vet
-	go build -o bin/api .
+	go build -o bin/api ./cmd/api
 
 run: build docker-up
 	./bin/api

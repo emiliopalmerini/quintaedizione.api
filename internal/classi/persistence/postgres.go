@@ -20,13 +20,13 @@ func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
 }
 
 type classeRow struct {
-	ID                          string                          `db:"id"`
-	Nome                        string                          `db:"nome"`
-	Descrizione                 sql.NullString                  `db:"descrizione"`
-	DocumentazioneDiRiferimento string                          `db:"documentazione_di_riferimento"`
-	DadoVita                    string                          `db:"dado_vita"`
+	ID                          string                             `db:"id"`
+	Nome                        string                             `db:"nome"`
+	Descrizione                 sql.NullString                     `db:"descrizione"`
+	DocumentazioneDiRiferimento string                             `db:"documentazione_di_riferimento"`
+	DadoVita                    string                             `db:"dado_vita"`
 	EquipaggiamentoPartenza     classi.EquipaggiamentoPartenzaJSON `db:"equipaggiamento_partenza"`
-	ProprietaDiClasse           classi.ProprietaLivelloSlice    `db:"proprieta_di_classe"`
+	ProprietaDiClasse           classi.ProprietaLivelloSlice       `db:"proprieta_di_classe"`
 }
 
 func (r *classeRow) toClasse(sottoclassi []classi.RiferimentoSottoclasse) classi.Classe {

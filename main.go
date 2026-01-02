@@ -75,10 +75,12 @@ func run(logger *slog.Logger) error {
 	healthHandler := health.NewHandler(db.DB, cfg.Version)
 	r.Get("/health", healthHandler.ServeHTTP)
 	r.Get("/health/live", healthHandler.Liveness)
-	r.Mount("/classi", handler.Routes())
-
 	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "swagger/quintaedizioneswagger")
+	})
+
+	r.Route("/v1", func(r chi.Router) {
+		r.Mount("/classi", handler.Routes())
 	})
 
 	server := &http.Server{

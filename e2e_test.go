@@ -101,7 +101,7 @@ func setupTestAPI(t *testing.T) *testAPI {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, `{"status":"ok"}`)
 	})
-	r.Mount("/classi", handler.Routes())
+	r.Mount("/v1/classi", handler.Routes())
 
 	server := httptest.NewServer(r)
 
@@ -207,7 +207,7 @@ func TestE2E_ListClassi(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		api.truncateTables(t)
 
-		resp, err := http.Get(api.server.URL + "/classi")
+		resp, err := http.Get(api.server.URL + "/v1/classi")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -233,7 +233,7 @@ func TestE2E_ListClassi(t *testing.T) {
 		api.insertClasse(t, "mago", "Mago", classi.D6)
 		api.insertClasse(t, "guerriero", "Guerriero", classi.D10)
 
-		resp, err := http.Get(api.server.URL + "/classi")
+		resp, err := http.Get(api.server.URL + "/v1/classi")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -257,7 +257,7 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with name filter", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi?nome=bar")
+		resp, err := http.Get(api.server.URL + "/v1/classi?nome=bar")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -277,7 +277,7 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with pagination", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi?$limit=2&$offset=0")
+		resp, err := http.Get(api.server.URL + "/v1/classi?$limit=2&$offset=0")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -297,7 +297,7 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with desc sort", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi?sort=desc")
+		resp, err := http.Get(api.server.URL + "/v1/classi?sort=desc")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -324,7 +324,7 @@ func TestE2E_GetClasse(t *testing.T) {
 	api.insertSottoclasse(t, "totemico", "Totemico", "barbaro")
 
 	t.Run("existing classe", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/barbaro")
+		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -354,7 +354,7 @@ func TestE2E_GetClasse(t *testing.T) {
 	})
 
 	t.Run("non-existing classe", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/nonexistent")
+		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -388,7 +388,7 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	api.insertSottoclasse(t, "totemico", "Totemico", "barbaro")
 
 	t.Run("list sottoclassi", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/barbaro/sotto-classi")
+		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -412,7 +412,7 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/nonexistent/sotto-classi")
+		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent/sotto-classi")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -424,7 +424,7 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	})
 
 	t.Run("with name filter", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/barbaro/sotto-classi?nome=ber")
+		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi?nome=ber")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -453,7 +453,7 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	api.insertSottoclasse(t, "berserker", "Berserker", "barbaro")
 
 	t.Run("existing sottoclasse", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/barbaro/sotto-classi/berserker")
+		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi/berserker")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -480,7 +480,7 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/nonexistent/sotto-classi/berserker")
+		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent/sotto-classi/berserker")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}
@@ -492,7 +492,7 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("sottoclasse not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/classi/barbaro/sotto-classi/nonexistent")
+		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi/nonexistent")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)
 		}

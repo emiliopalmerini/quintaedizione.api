@@ -22,6 +22,7 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
 )
 
 func main() {
@@ -39,25 +40,20 @@ func main() {
 }
 
 func run(logger *slog.Logger) error {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
 	}
 
-	databaseURL := os.Getenv("DATABASE_URL")
-	if databaseURL == "" {
-		return fmt.Errorf("DATABASE_URL environment variable is required")
-	}
-
-	db, err := sqlx.Connect("postgres", databaseURL)
+	db, err := sqlx.Connect("postgres", cfg.Database.URL)
 	if err != nil {
 		return fmt.Errorf("connect to database: %w", err)
 	}
 	defer db.Close()
 
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetMaxOpenConns(cfg.Database.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.Database.MaxIdleConns)
+	db.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
 
 	if err := runMigrations(db, logger); err != nil {
 		return fmt.Errorf("run migrations: %w", err)
@@ -79,11 +75,11 @@ func run(logger *slog.Logger) error {
 	r.Mount("/classi", handler.Routes())
 
 	server := &http.Server{
-		Addr:         ":" + port,
+		Addr:         ":" + cfg.Server.Port,
 		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		ReadTimeout:  cfg.Server.ReadTimeout,
+		WriteTimeout: cfg.Server.WriteTimeout,
+		IdleTimeout:  cfg.Server.IdleTimeout,
 	}
 
 	shutdown := make(chan os.Signal, 1)
@@ -91,7 +87,7 @@ func run(logger *slog.Logger) error {
 
 	serverErrors := make(chan error, 1)
 	go func() {
-		logger.Info("server starting", "port", port)
+		logger.Info("server starting", "port", cfg.Server.Port)
 		serverErrors <- server.ListenAndServe()
 	}()
 

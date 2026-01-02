@@ -21,35 +21,35 @@ const (
 type TipoAzione string
 
 const (
-	Nessuna       TipoAzione = "Nessuna"
-	AzioneBonus   TipoAzione = "Azione Bonus"
-	Azione        TipoAzione = "Azione"
-	Reazione      TipoAzione = "Reazione"
+	Nessuna        TipoAzione = "Nessuna"
+	AzioneBonus    TipoAzione = "Azione Bonus"
+	Azione         TipoAzione = "Azione"
+	Reazione       TipoAzione = "Reazione"
 	AzioneGratuita TipoAzione = "Azione Gratuita"
 )
 
 type Tratto struct {
-	ID            string     `json:"id,omitempty"`
-	Nome          string     `json:"nome"`
-	Descrizione   string     `json:"descrizione,omitempty"`
-	TipoAzione    TipoAzione `json:"tipo-azione,omitempty"`
-	TipoDiSorgente string    `json:"tipo-di-sorgente,omitempty"`
+	ID             string     `json:"id,omitempty"`
+	Nome           string     `json:"nome"`
+	Descrizione    string     `json:"descrizione,omitempty"`
+	TipoAzione     TipoAzione `json:"tipo-azione,omitempty"`
+	TipoDiSorgente string     `json:"tipo-di-sorgente,omitempty"`
 }
 
 type SlotIncantesimo struct {
-	NumeroSlot               int32 `json:"numero-slot"`
-	LivelloSlotIncantesimo   int32 `json:"livello-slot-incantesimo"`
+	NumeroSlot             int32 `json:"numero-slot"`
+	LivelloSlotIncantesimo int32 `json:"livello-slot-incantesimo"`
 }
 
 type IncantesimiClasse struct {
-	SlotIncantesimi     []SlotIncantesimo `json:"slot-incantesimi,omitempty"`
-	IncantesimiPreparati int32            `json:"incantesimi-preparati,omitempty"`
+	SlotIncantesimi      []SlotIncantesimo `json:"slot-incantesimi,omitempty"`
+	IncantesimiPreparati int32             `json:"incantesimi-preparati,omitempty"`
 }
 
 type ProprietaLivello struct {
-	LivelloClasse      int32              `json:"livello-classe"`
-	TrattoDiClasse     *Tratto            `json:"tratto-di-classe,omitempty"`
-	IncantesimiClasse  *IncantesimiClasse `json:"incantesimi-di-classe,omitempty"`
+	LivelloClasse     int32              `json:"livello-classe"`
+	TrattoDiClasse    *Tratto            `json:"tratto-di-classe,omitempty"`
+	IncantesimiClasse *IncantesimiClasse `json:"incantesimi-di-classe,omitempty"`
 }
 
 type RiferimentoSottoclasse struct {

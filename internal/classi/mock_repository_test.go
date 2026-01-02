@@ -7,9 +7,9 @@ import (
 )
 
 type MockRepository struct {
-	ListFunc             func(ctx context.Context, filter shared.ListFilter) ([]Classe, int, error)
-	GetByIDFunc          func(ctx context.Context, id string) (*Classe, error)
-	ListSottoclassiFunc  func(ctx context.Context, classeID string, filter shared.ListFilter) ([]SottoClasse, int, error)
+	ListFunc               func(ctx context.Context, filter shared.ListFilter) ([]Classe, int, error)
+	GetByIDFunc            func(ctx context.Context, id string) (*Classe, error)
+	ListSottoclassiFunc    func(ctx context.Context, classeID string, filter shared.ListFilter) ([]SottoClasse, int, error)
 	GetSottoclasseByIDFunc func(ctx context.Context, classeID, sottoclasseID string) (*SottoClasse, error)
 }
 

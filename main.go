@@ -139,4 +139,3 @@ func runMigrations(db *sqlx.DB, logger *slog.Logger) error {
 	logger.Info("migrations applied successfully")
 	return nil
 }
-

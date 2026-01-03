@@ -22,6 +22,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
 	classipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	classitransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/condizioni"
+	condizionipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/persistence"
+	condizionitransports "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
@@ -174,6 +177,12 @@ func (a *App) setupRoutes() {
 		regoleService := regole.NewService(regoleRepo, a.deps.Logger)
 		regoleHandler := regoletransports.NewHandler(regoleService)
 		r.Mount("/regole", regoleHandler.Routes())
+
+		// Condizioni
+		condizioniRepo := condizionipersistence.NewPostgresRepository(a.deps.DB)
+		condizioniService := condizioni.NewService(condizioniRepo, a.deps.Logger)
+		condizioniHandler := condizionitransports.NewHandler(condizioniService)
+		r.Mount("/condizioni", condizioniHandler.Routes())
 	})
 
 	a.router = r

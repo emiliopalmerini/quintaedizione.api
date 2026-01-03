@@ -25,6 +25,9 @@ import (
 	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
 	incantesimitransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
 	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/mostri"
+	mostripersistence "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/persistence"
+	mostritransports "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/transports"
 )
 
 type App struct {
@@ -111,6 +114,12 @@ func (a *App) setupRoutes() {
 		incantesimiService := incantesimi.NewService(incantesimiRepo, a.deps.Logger)
 		incantesimiHandler := incantesimitransports.NewHandler(incantesimiService)
 		r.Mount("/incantesimi", incantesimiHandler.Routes())
+
+		// Mostri
+		mostriRepo := mostripersistence.NewPostgresRepository(a.deps.DB)
+		mostriService := mostri.NewService(mostriRepo, a.deps.Logger)
+		mostriHandler := mostritransports.NewHandler(mostriService)
+		r.Mount("/mostri", mostriHandler.Routes())
 	})
 
 	a.router = r

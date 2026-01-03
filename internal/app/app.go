@@ -24,6 +24,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
 	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
 	incantesimitransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/maestrie"
+	maestriepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/persistence"
+	maestrietransports "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/transports"
 	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/mostri"
 	mostripersistence "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/persistence"
@@ -129,6 +132,12 @@ func (a *App) setupRoutes() {
 		oggettiService := oggetti.NewService(oggettiRepo, a.deps.Logger)
 		oggettiHandler := oggettitransports.NewHandler(oggettiService)
 		r.Mount("/oggetti", oggettiHandler.Routes())
+
+		// Maestrie
+		maestrieRepo := maestriepersistence.NewPostgresRepository(a.deps.DB)
+		maestrieService := maestrie.NewService(maestrieRepo, a.deps.Logger)
+		maestrieHandler := maestrietransports.NewHandler(maestrieService)
+		r.Mount("/maestrie", maestrieHandler.Routes())
 	})
 
 	a.router = r

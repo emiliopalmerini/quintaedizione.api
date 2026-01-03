@@ -34,6 +34,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/oggetti"
 	oggettipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/persistence"
 	oggettitransports "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/talenti"
+	talentipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/persistence"
+	talentitransports "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/transports"
 )
 
 type App struct {
@@ -138,6 +141,12 @@ func (a *App) setupRoutes() {
 		maestrieService := maestrie.NewService(maestrieRepo, a.deps.Logger)
 		maestrieHandler := maestrietransports.NewHandler(maestrieService)
 		r.Mount("/maestrie", maestrieHandler.Routes())
+
+		// Talenti
+		talentiRepo := talentipersistence.NewPostgresRepository(a.deps.DB)
+		talentiService := talenti.NewService(talentiRepo, a.deps.Logger)
+		talentiHandler := talentitransports.NewHandler(talentiService)
+		r.Mount("/talenti", talentiHandler.Routes())
 	})
 
 	a.router = r

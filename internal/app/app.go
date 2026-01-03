@@ -16,6 +16,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
+	"github.com/emiliopalmerini/quintaedizione.api/internal/background"
+	backgroundpersistence "github.com/emiliopalmerini/quintaedizione.api/internal/background/persistence"
+	backgroundtransports "github.com/emiliopalmerini/quintaedizione.api/internal/background/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
 	classipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	classitransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
@@ -156,6 +159,12 @@ func (a *App) setupRoutes() {
 		specieService := specie.NewService(specieRepo, a.deps.Logger)
 		specieHandler := specietransports.NewHandler(specieService)
 		r.Mount("/specie", specieHandler.Routes())
+
+		// Background
+		backgroundRepo := backgroundpersistence.NewPostgresRepository(a.deps.DB)
+		backgroundService := background.NewService(backgroundRepo, a.deps.Logger)
+		backgroundHandler := backgroundtransports.NewHandler(backgroundService)
+		r.Mount("/background", backgroundHandler.Routes())
 	})
 
 	a.router = r

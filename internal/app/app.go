@@ -26,6 +26,9 @@ import (
 	condizionipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/persistence"
 	condizionitransports "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/divinita"
+	divinitapersistence "github.com/emiliopalmerini/quintaedizione.api/internal/divinita/persistence"
+	divinitransports "github.com/emiliopalmerini/quintaedizione.api/internal/divinita/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
 	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
@@ -192,6 +195,12 @@ func (a *App) setupRoutes() {
 		linguaggiService := linguaggi.NewService(linguaggiRepo, a.deps.Logger)
 		linguaggiHandler := linguaggitransports.NewHandler(linguaggiService)
 		r.Mount("/linguaggi", linguaggiHandler.Routes())
+
+		// Divinita
+		divinitaRepo := divinitapersistence.NewPostgresRepository(a.deps.DB)
+		divinitaService := divinita.NewService(divinitaRepo, a.deps.Logger)
+		divinitaHandler := divinitransports.NewHandler(divinitaService)
+		r.Mount("/divinita", divinitaHandler.Routes())
 	})
 
 	a.router = r

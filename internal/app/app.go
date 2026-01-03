@@ -20,10 +20,10 @@ import (
 	classipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	classitransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
 	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
 	incantesimitransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
-	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
 	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
 )
 

@@ -29,7 +29,7 @@ func (s *Service) ListIncantesimi(ctx context.Context, filter shared.ListFilter)
 	return &ListIncantesimiResponse{
 		Pagina:           filter.Page(),
 		NumeroDiElementi: total,
-		Incantesimi:           items,
+		Incantesimi:      items,
 	}, nil
 }
 

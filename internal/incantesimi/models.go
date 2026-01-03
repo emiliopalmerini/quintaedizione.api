@@ -28,22 +28,22 @@ const (
 )
 
 type Incantesimo struct {
-	ID                          string            `json:"id" db:"id"`
-	Nome                        string            `json:"nome" db:"nome"`
-	Livello                     int               `json:"livello" db:"livello"`
-	ScuolaDiMagia               ScuolaDiMagia     `json:"scuola-di-magia" db:"scuola_di_magia"`
-	TempoDiLancio               string            `json:"tempo-di-lancio" db:"tempo_di_lancio"`
-	Gittata                     string            `json:"gittata" db:"gittata"`
-	Area                        string            `json:"area,omitempty" db:"area"`
-	Concentrazione              bool              `json:"concentrazione" db:"concentrazione"`
-	SemprePreparato             bool              `json:"sempre-preparato,omitempty" db:"sempre_preparato"`
-	Rituale                     bool              `json:"rituale" db:"rituale"`
-	Componenti                  ComponentiSlice   `json:"componenti" db:"componenti"`
-	ComponentiMateriali         string            `json:"componenti-materiali,omitempty" db:"componenti_materiali"`
-	Durata                      string            `json:"durata" db:"durata"`
-	Descrizione                 string            `json:"descrizione" db:"descrizione"`
-	Classi                      string            `json:"classi" db:"classi"`
-	DocumentazioneDiRiferimento string            `json:"documentazione-di-riferimento" db:"documentazione_di_riferimento"`
+	ID                          string          `json:"id" db:"id"`
+	Nome                        string          `json:"nome" db:"nome"`
+	Livello                     int             `json:"livello" db:"livello"`
+	ScuolaDiMagia               ScuolaDiMagia   `json:"scuola-di-magia" db:"scuola_di_magia"`
+	TempoDiLancio               string          `json:"tempo-di-lancio" db:"tempo_di_lancio"`
+	Gittata                     string          `json:"gittata" db:"gittata"`
+	Area                        string          `json:"area,omitempty" db:"area"`
+	Concentrazione              bool            `json:"concentrazione" db:"concentrazione"`
+	SemprePreparato             bool            `json:"sempre-preparato,omitempty" db:"sempre_preparato"`
+	Rituale                     bool            `json:"rituale" db:"rituale"`
+	Componenti                  ComponentiSlice `json:"componenti" db:"componenti"`
+	ComponentiMateriali         string          `json:"componenti-materiali,omitempty" db:"componenti_materiali"`
+	Durata                      string          `json:"durata" db:"durata"`
+	Descrizione                 string          `json:"descrizione" db:"descrizione"`
+	Classi                      string          `json:"classi" db:"classi"`
+	DocumentazioneDiRiferimento string          `json:"documentazione-di-riferimento" db:"documentazione_di_riferimento"`
 }
 
 type ComponentiSlice []Componente

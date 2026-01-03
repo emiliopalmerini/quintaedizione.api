@@ -11,16 +11,16 @@ import (
 )
 
 type ModuleConfig struct {
-	Name           string   `json:"name"`
-	NamePlural     string   `json:"name_plural"`
-	NameCapital    string   `json:"name_capital"`
-	NamePluralCap  string   `json:"name_plural_cap"`
-	TableName      string   `json:"table_name"`
-	RouteParam     string   `json:"route_param"`
-	HasSubresource bool     `json:"has_subresource"`
-	SubName        string   `json:"sub_name,omitempty"`
-	SubNamePlural  string   `json:"sub_name_plural,omitempty"`
-	SubTableName   string   `json:"sub_table_name,omitempty"`
+	Name           string    `json:"name"`
+	NamePlural     string    `json:"name_plural"`
+	NameCapital    string    `json:"name_capital"`
+	NamePluralCap  string    `json:"name_plural_cap"`
+	TableName      string    `json:"table_name"`
+	RouteParam     string    `json:"route_param"`
+	HasSubresource bool      `json:"has_subresource"`
+	SubName        string    `json:"sub_name,omitempty"`
+	SubNamePlural  string    `json:"sub_name_plural,omitempty"`
+	SubTableName   string    `json:"sub_table_name,omitempty"`
 	DBFields       []DBField `json:"db_fields"`
 	SubDBFields    []DBField `json:"sub_db_fields,omitempty"`
 }
@@ -84,13 +84,13 @@ func generateModule(config ModuleConfig, outputDir, migrationsDir string, migrat
 	}
 
 	files := map[string]string{
-		filepath.Join(moduleDir, "models.go"):                modelsTemplate,
-		filepath.Join(moduleDir, "interfaces.go"):            interfacesTemplate,
-		filepath.Join(moduleDir, "service.go"):               serviceTemplate,
-		filepath.Join(moduleDir, "errors.go"):                errorsTemplate,
-		filepath.Join(moduleDir, "responses.go"):             responsesTemplate,
+		filepath.Join(moduleDir, "models.go"):                  modelsTemplate,
+		filepath.Join(moduleDir, "interfaces.go"):              interfacesTemplate,
+		filepath.Join(moduleDir, "service.go"):                 serviceTemplate,
+		filepath.Join(moduleDir, "errors.go"):                  errorsTemplate,
+		filepath.Join(moduleDir, "responses.go"):               responsesTemplate,
 		filepath.Join(moduleDir, "persistence", "postgres.go"): postgresTemplate,
-		filepath.Join(moduleDir, "transports", "http.go"):    httpTemplate,
+		filepath.Join(moduleDir, "transports", "http.go"):      httpTemplate,
 	}
 
 	for path, tmplStr := range files {

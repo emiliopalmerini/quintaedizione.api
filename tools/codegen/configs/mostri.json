@@ -1,0 +1,8 @@
+{
+  "name": "mostri",
+  "name_plural": "mostri",
+  "name_capital": "Mostro",
+  "name_plural_cap": "Mostri",
+  "table_name": "mostri",
+  "route_param": "id-mostro"
+}

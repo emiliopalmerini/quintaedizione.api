@@ -1,0 +1,8 @@
+{
+  "name": "maestrie",
+  "name_plural": "maestrie",
+  "name_capital": "Maestria",
+  "name_plural_cap": "Maestrie",
+  "table_name": "maestrie",
+  "route_param": "id-maestria"
+}

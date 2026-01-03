@@ -28,6 +28,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/mostri"
 	mostripersistence "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/persistence"
 	mostritransports "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/oggetti"
+	oggettipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/persistence"
+	oggettitransports "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/transports"
 )
 
 type App struct {
@@ -120,6 +123,12 @@ func (a *App) setupRoutes() {
 		mostriService := mostri.NewService(mostriRepo, a.deps.Logger)
 		mostriHandler := mostritransports.NewHandler(mostriService)
 		r.Mount("/mostri", mostriHandler.Routes())
+
+		// Oggetti
+		oggettiRepo := oggettipersistence.NewPostgresRepository(a.deps.DB)
+		oggettiService := oggetti.NewService(oggettiRepo, a.deps.Logger)
+		oggettiHandler := oggettitransports.NewHandler(oggettiService)
+		r.Mount("/oggetti", oggettiHandler.Routes())
 	})
 
 	a.router = r

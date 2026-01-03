@@ -34,6 +34,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/oggetti"
 	oggettipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/persistence"
 	oggettitransports "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/specie"
+	speciepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/specie/persistence"
+	specietransports "github.com/emiliopalmerini/quintaedizione.api/internal/specie/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/talenti"
 	talentipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/persistence"
 	talentitransports "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/transports"
@@ -147,6 +150,12 @@ func (a *App) setupRoutes() {
 		talentiService := talenti.NewService(talentiRepo, a.deps.Logger)
 		talentiHandler := talentitransports.NewHandler(talentiService)
 		r.Mount("/talenti", talentiHandler.Routes())
+
+		// Specie
+		specieRepo := speciepersistence.NewPostgresRepository(a.deps.DB)
+		specieService := specie.NewService(specieRepo, a.deps.Logger)
+		specieHandler := specietransports.NewHandler(specieService)
+		r.Mount("/specie", specieHandler.Routes())
 	})
 
 	a.router = r

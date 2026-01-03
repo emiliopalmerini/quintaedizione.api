@@ -1,0 +1,8 @@
+{
+  "name": "linguaggi",
+  "name_plural": "linguaggi",
+  "name_capital": "Linguaggio",
+  "name_plural_cap": "Linguaggi",
+  "table_name": "linguaggi",
+  "route_param": "id-linguaggio"
+}

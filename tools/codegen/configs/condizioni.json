@@ -1,0 +1,8 @@
+{
+  "name": "condizioni",
+  "name_plural": "condizioni",
+  "name_capital": "Condizione",
+  "name_plural_cap": "Condizioni",
+  "table_name": "condizioni",
+  "route_param": "id-condizione"
+}

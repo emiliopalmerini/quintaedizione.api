@@ -19,6 +19,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/background"
 	backgroundpersistence "github.com/emiliopalmerini/quintaedizione.api/internal/background/persistence"
 	backgroundtransports "github.com/emiliopalmerini/quintaedizione.api/internal/background/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/bastioni"
+	bastionipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/bastioni/persistence"
+	bastionitransports "github.com/emiliopalmerini/quintaedizione.api/internal/bastioni/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
 	classipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
 	classitransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
@@ -201,6 +204,12 @@ func (a *App) setupRoutes() {
 		divinitaService := divinita.NewService(divinitaRepo, a.deps.Logger)
 		divinitaHandler := divinitransports.NewHandler(divinitaService)
 		r.Mount("/divinita", divinitaHandler.Routes())
+
+		// Bastioni
+		bastioniRepo := bastionipersistence.NewPostgresRepository(a.deps.DB)
+		bastioniService := bastioni.NewService(bastioniRepo, a.deps.Logger)
+		bastioniHandler := bastionitransports.NewHandler(bastioniService)
+		r.Mount("/bastioni", bastioniHandler.Routes())
 	})
 
 	a.router = r

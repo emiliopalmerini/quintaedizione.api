@@ -1,0 +1,8 @@
+{
+  "name": "regole",
+  "name_plural": "regole",
+  "name_capital": "Regola",
+  "name_plural_cap": "Regole",
+  "table_name": "regole",
+  "route_param": "id-regola"
+}

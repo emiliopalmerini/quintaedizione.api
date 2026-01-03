@@ -37,6 +37,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/oggetti"
 	oggettipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/persistence"
 	oggettitransports "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/regole"
+	regolepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/regole/persistence"
+	regoletransports "github.com/emiliopalmerini/quintaedizione.api/internal/regole/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/specie"
 	speciepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/specie/persistence"
 	specietransports "github.com/emiliopalmerini/quintaedizione.api/internal/specie/transports"
@@ -165,6 +168,12 @@ func (a *App) setupRoutes() {
 		backgroundService := background.NewService(backgroundRepo, a.deps.Logger)
 		backgroundHandler := backgroundtransports.NewHandler(backgroundService)
 		r.Mount("/background", backgroundHandler.Routes())
+
+		// Regole
+		regoleRepo := regolepersistence.NewPostgresRepository(a.deps.DB)
+		regoleService := regole.NewService(regoleRepo, a.deps.Logger)
+		regoleHandler := regoletransports.NewHandler(regoleService)
+		r.Mount("/regole", regoleHandler.Routes())
 	})
 
 	a.router = r

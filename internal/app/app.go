@@ -1,0 +1,237 @@
+package app
+
+import (
+	"fmt"
+	"log/slog"
+	"net/http"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+
+	"github.com/emiliopalmerini/quintaedizione.api/internal/background"
+	backgroundpersistence "github.com/emiliopalmerini/quintaedizione.api/internal/background/persistence"
+	backgroundtransports "github.com/emiliopalmerini/quintaedizione.api/internal/background/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
+	classipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
+	classitransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/condizioni"
+	condizionipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/persistence"
+	condizionitransports "github.com/emiliopalmerini/quintaedizione.api/internal/condizioni/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/divinita"
+	divinitapersistence "github.com/emiliopalmerini/quintaedizione.api/internal/divinita/persistence"
+	divinitransports "github.com/emiliopalmerini/quintaedizione.api/internal/divinita/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
+	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
+	incantesimitransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi"
+	linguaggipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi/persistence"
+	linguaggitransports "github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/maestrie"
+	maestriepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/persistence"
+	maestrietransports "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/transports"
+	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/mostri"
+	mostripersistence "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/persistence"
+	mostritransports "github.com/emiliopalmerini/quintaedizione.api/internal/mostri/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/oggetti"
+	oggettipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/persistence"
+	oggettitransports "github.com/emiliopalmerini/quintaedizione.api/internal/oggetti/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/regole"
+	regolepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/regole/persistence"
+	regoletransports "github.com/emiliopalmerini/quintaedizione.api/internal/regole/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/specie"
+	speciepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/specie/persistence"
+	specietransports "github.com/emiliopalmerini/quintaedizione.api/internal/specie/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/talenti"
+	talentipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/persistence"
+	talentitransports "github.com/emiliopalmerini/quintaedizione.api/internal/talenti/transports"
+)
+
+type App struct {
+	deps   *Dependencies
+	router chi.Router
+}
+
+func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
+	db, err := sqlx.Connect("postgres", cfg.Database.URL)
+	if err != nil {
+		return nil, fmt.Errorf("connect to database: %w", err)
+	}
+
+	db.SetMaxOpenConns(cfg.Database.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.Database.MaxIdleConns)
+	db.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
+
+	if err := runMigrations(db); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("run migrations: %w", err)
+	}
+
+	deps := &Dependencies{
+		DB:     db,
+		Logger: logger,
+		Config: cfg,
+	}
+
+	app := &App{deps: deps}
+	app.setupRoutes()
+
+	logger.Info("migrations applied successfully")
+
+	return app, nil
+}
+
+func (a *App) setupRoutes() {
+	r := chi.NewRouter()
+
+	// Base middleware
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	r.Use(custommw.Logger(a.deps.Logger))
+	r.Use(middleware.Compress(5))
+
+	// CORS
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   a.deps.Config.CORS.AllowedOrigins,
+		AllowedMethods:   a.deps.Config.CORS.AllowedMethods,
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-API-Key"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           a.deps.Config.CORS.MaxAge,
+	}))
+
+	// Rate limiting
+	if a.deps.Config.RateLimit.Enabled {
+		r.Use(httprate.LimitByIP(a.deps.Config.RateLimit.RequestsPerMinute, time.Minute))
+	}
+
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(30 * time.Second))
+
+	// Public endpoints
+	healthHandler := health.NewHandler(a.deps.DB.DB, a.deps.Config.Version)
+	r.Get("/health", healthHandler.ServeHTTP)
+	r.Get("/health/live", healthHandler.Liveness)
+	r.Get("/swagger", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "swagger/quintaedizioneswagger")
+	})
+
+	// Protected API routes
+	r.Route("/v1", func(r chi.Router) {
+		r.Use(custommw.APIKey(a.deps.Config.APIKey))
+
+		// Classi
+		classiRepo := classipersistence.NewPostgresRepository(a.deps.DB)
+		classiService := classi.NewService(classiRepo, a.deps.Logger)
+		classiHandler := classitransports.NewHandler(classiService)
+		r.Mount("/classi", classiHandler.Routes())
+
+		// Incantesimi
+		incantesimiRepo := incantesimipersistence.NewPostgresRepository(a.deps.DB)
+		incantesimiService := incantesimi.NewService(incantesimiRepo, a.deps.Logger)
+		incantesimiHandler := incantesimitransports.NewHandler(incantesimiService)
+		r.Mount("/incantesimi", incantesimiHandler.Routes())
+
+		// Mostri
+		mostriRepo := mostripersistence.NewPostgresRepository(a.deps.DB)
+		mostriService := mostri.NewService(mostriRepo, a.deps.Logger)
+		mostriHandler := mostritransports.NewHandler(mostriService)
+		r.Mount("/mostri", mostriHandler.Routes())
+
+		// Oggetti
+		oggettiRepo := oggettipersistence.NewPostgresRepository(a.deps.DB)
+		oggettiService := oggetti.NewService(oggettiRepo, a.deps.Logger)
+		oggettiHandler := oggettitransports.NewHandler(oggettiService)
+		r.Mount("/oggetti", oggettiHandler.Routes())
+
+		// Maestrie
+		maestrieRepo := maestriepersistence.NewPostgresRepository(a.deps.DB)
+		maestrieService := maestrie.NewService(maestrieRepo, a.deps.Logger)
+		maestrieHandler := maestrietransports.NewHandler(maestrieService)
+		r.Mount("/maestrie", maestrieHandler.Routes())
+
+		// Talenti
+		talentiRepo := talentipersistence.NewPostgresRepository(a.deps.DB)
+		talentiService := talenti.NewService(talentiRepo, a.deps.Logger)
+		talentiHandler := talentitransports.NewHandler(talentiService)
+		r.Mount("/talenti", talentiHandler.Routes())
+
+		// Specie
+		specieRepo := speciepersistence.NewPostgresRepository(a.deps.DB)
+		specieService := specie.NewService(specieRepo, a.deps.Logger)
+		specieHandler := specietransports.NewHandler(specieService)
+		r.Mount("/specie", specieHandler.Routes())
+
+		// Background
+		backgroundRepo := backgroundpersistence.NewPostgresRepository(a.deps.DB)
+		backgroundService := background.NewService(backgroundRepo, a.deps.Logger)
+		backgroundHandler := backgroundtransports.NewHandler(backgroundService)
+		r.Mount("/background", backgroundHandler.Routes())
+
+		// Regole
+		regoleRepo := regolepersistence.NewPostgresRepository(a.deps.DB)
+		regoleService := regole.NewService(regoleRepo, a.deps.Logger)
+		regoleHandler := regoletransports.NewHandler(regoleService)
+		r.Mount("/regole", regoleHandler.Routes())
+
+		// Condizioni
+		condizioniRepo := condizionipersistence.NewPostgresRepository(a.deps.DB)
+		condizioniService := condizioni.NewService(condizioniRepo, a.deps.Logger)
+		condizioniHandler := condizionitransports.NewHandler(condizioniService)
+		r.Mount("/condizioni", condizioniHandler.Routes())
+
+		// Linguaggi
+		linguaggiRepo := linguaggipersistence.NewPostgresRepository(a.deps.DB)
+		linguaggiService := linguaggi.NewService(linguaggiRepo, a.deps.Logger)
+		linguaggiHandler := linguaggitransports.NewHandler(linguaggiService)
+		r.Mount("/linguaggi", linguaggiHandler.Routes())
+
+		// Divinita
+		divinitaRepo := divinitapersistence.NewPostgresRepository(a.deps.DB)
+		divinitaService := divinita.NewService(divinitaRepo, a.deps.Logger)
+		divinitaHandler := divinitransports.NewHandler(divinitaService)
+		r.Mount("/divinita", divinitaHandler.Routes())
+	})
+
+	a.router = r
+}
+
+func (a *App) Router() http.Handler {
+	return a.router
+}
+
+func (a *App) Close() error {
+	return a.deps.DB.Close()
+}
+
+func runMigrations(db *sqlx.DB) error {
+	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("create migration driver: %w", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres",
+		driver,
+	)
+	if err != nil {
+		return fmt.Errorf("create migration instance: %w", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("apply migrations: %w", err)
+	}
+
+	return nil
+}

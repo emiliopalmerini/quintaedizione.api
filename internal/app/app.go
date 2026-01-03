@@ -30,6 +30,9 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
 	incantesimipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
 	incantesimitransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi"
+	linguaggipersistence "github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi/persistence"
+	linguaggitransports "github.com/emiliopalmerini/quintaedizione.api/internal/linguaggi/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/maestrie"
 	maestriepersistence "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/persistence"
 	maestrietransports "github.com/emiliopalmerini/quintaedizione.api/internal/maestrie/transports"
@@ -183,6 +186,12 @@ func (a *App) setupRoutes() {
 		condizioniService := condizioni.NewService(condizioniRepo, a.deps.Logger)
 		condizioniHandler := condizionitransports.NewHandler(condizioniService)
 		r.Mount("/condizioni", condizioniHandler.Routes())
+
+		// Linguaggi
+		linguaggiRepo := linguaggipersistence.NewPostgresRepository(a.deps.DB)
+		linguaggiService := linguaggi.NewService(linguaggiRepo, a.deps.Logger)
+		linguaggiHandler := linguaggitransports.NewHandler(linguaggiService)
+		r.Mount("/linguaggi", linguaggiHandler.Routes())
 	})
 
 	a.router = r

@@ -1,6 +1,7 @@
 package transports
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -9,11 +10,18 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/shared"
 )
 
-type Handler struct {
-	service *classi.Service
+type ClassiService interface {
+	ListClassi(ctx context.Context, filter shared.ListFilter) (*classi.ListClassiResponse, error)
+	GetClasse(ctx context.Context, id string) (*classi.Classe, error)
+	ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) (*classi.ListSottoclassiResponse, error)
+	GetSottoclasse(ctx context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error)
 }
 
-func NewHandler(service *classi.Service) *Handler {
+type Handler struct {
+	service ClassiService
+}
+
+func NewHandler(service ClassiService) *Handler {
 	return &Handler{service: service}
 }
 

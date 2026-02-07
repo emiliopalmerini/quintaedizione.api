@@ -3,9 +3,6 @@ package transports
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,65 +13,57 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/shared"
 )
 
-type mockRepository struct {
-	listFunc               func(ctx context.Context, filter shared.ListFilter) ([]classi.Classe, int, error)
-	getByIDFunc            func(ctx context.Context, id string) (*classi.Classe, error)
-	listSottoclassiFunc    func(ctx context.Context, classeID string, filter shared.ListFilter) ([]classi.SottoClasse, int, error)
-	getSottoclasseByIDFunc func(ctx context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error)
+type mockService struct {
+	listClassiFunc      func(ctx context.Context, filter shared.ListFilter) (*classi.ListClassiResponse, error)
+	getClasseFunc       func(ctx context.Context, id string) (*classi.Classe, error)
+	listSottoclassiFunc func(ctx context.Context, classeID string, filter shared.ListFilter) (*classi.ListSottoclassiResponse, error)
+	getSottoclasseFunc  func(ctx context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error)
 }
 
-func (m *mockRepository) List(ctx context.Context, filter shared.ListFilter) ([]classi.Classe, int, error) {
-	if m.listFunc != nil {
-		return m.listFunc(ctx, filter)
+func (m *mockService) ListClassi(ctx context.Context, filter shared.ListFilter) (*classi.ListClassiResponse, error) {
+	if m.listClassiFunc != nil {
+		return m.listClassiFunc(ctx, filter)
 	}
-	return nil, 0, nil
+	return &classi.ListClassiResponse{}, nil
 }
 
-func (m *mockRepository) GetByID(ctx context.Context, id string) (*classi.Classe, error) {
-	if m.getByIDFunc != nil {
-		return m.getByIDFunc(ctx, id)
+func (m *mockService) GetClasse(ctx context.Context, id string) (*classi.Classe, error) {
+	if m.getClasseFunc != nil {
+		return m.getClasseFunc(ctx, id)
 	}
 	return nil, nil
 }
 
-func (m *mockRepository) ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) ([]classi.SottoClasse, int, error) {
+func (m *mockService) ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) (*classi.ListSottoclassiResponse, error) {
 	if m.listSottoclassiFunc != nil {
 		return m.listSottoclassiFunc(ctx, classeID, filter)
 	}
-	return nil, 0, nil
+	return &classi.ListSottoclassiResponse{}, nil
 }
 
-func (m *mockRepository) GetSottoclasseByID(ctx context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error) {
-	if m.getSottoclasseByIDFunc != nil {
-		return m.getSottoclasseByIDFunc(ctx, classeID, sottoclasseID)
+func (m *mockService) GetSottoclasse(ctx context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error) {
+	if m.getSottoclasseFunc != nil {
+		return m.getSottoclasseFunc(ctx, classeID, sottoclasseID)
 	}
 	return nil, nil
-}
-
-func newTestLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
-}
-
-func setupTestHandler(repo classi.Repository) *Handler {
-	logger := newTestLogger()
-	service := classi.NewService(repo, logger)
-	return NewHandler(service)
 }
 
 func TestHandler_ListClassi(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		expectedClassi := []classi.Classe{
-			{ID: "barbaro", Nome: "Barbaro", DadoVita: classi.D12},
-			{ID: "mago", Nome: "Mago", DadoVita: classi.D6},
-		}
-
-		repo := &mockRepository{
-			listFunc: func(_ context.Context, _ shared.ListFilter) ([]classi.Classe, int, error) {
-				return expectedClassi, 2, nil
+		svc := &mockService{
+			listClassiFunc: func(_ context.Context, _ shared.ListFilter) (*classi.ListClassiResponse, error) {
+				return &classi.ListClassiResponse{
+					Pagina:           1,
+					NumeroDiElementi: 2,
+					Classi: []classi.Classe{
+						{ID: "barbaro", Nome: "Barbaro", DadoVita: classi.D12},
+						{ID: "mago", Nome: "Mago", DadoVita: classi.D6},
+					},
+				}, nil
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -103,14 +92,14 @@ func TestHandler_ListClassi(t *testing.T) {
 	t.Run("with query params", func(t *testing.T) {
 		var capturedFilter shared.ListFilter
 
-		repo := &mockRepository{
-			listFunc: func(_ context.Context, filter shared.ListFilter) ([]classi.Classe, int, error) {
+		svc := &mockService{
+			listClassiFunc: func(_ context.Context, filter shared.ListFilter) (*classi.ListClassiResponse, error) {
 				capturedFilter = filter
-				return []classi.Classe{}, 0, nil
+				return &classi.ListClassiResponse{}, nil
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -137,14 +126,14 @@ func TestHandler_ListClassi(t *testing.T) {
 		}
 	})
 
-	t.Run("repository error", func(t *testing.T) {
-		repo := &mockRepository{
-			listFunc: func(_ context.Context, _ shared.ListFilter) ([]classi.Classe, int, error) {
-				return nil, 0, errors.New("database error")
+	t.Run("service error", func(t *testing.T) {
+		svc := &mockService{
+			listClassiFunc: func(_ context.Context, _ shared.ListFilter) (*classi.ListClassiResponse, error) {
+				return nil, shared.NewInternalError(nil)
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -161,22 +150,16 @@ func TestHandler_ListClassi(t *testing.T) {
 
 func TestHandler_GetClasse(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		expectedClasse := &classi.Classe{
-			ID:       "barbaro",
-			Nome:     "Barbaro",
-			DadoVita: classi.D12,
-		}
-
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, id string) (*classi.Classe, error) {
+		svc := &mockService{
+			getClasseFunc: func(_ context.Context, id string) (*classi.Classe, error) {
 				if id == "barbaro" {
-					return expectedClasse, nil
+					return &classi.Classe{ID: "barbaro", Nome: "Barbaro", DadoVita: classi.D12}, nil
 				}
 				return nil, nil
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -200,13 +183,13 @@ func TestHandler_GetClasse(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
-				return nil, nil
+		svc := &mockService{
+			getClasseFunc: func(_ context.Context, id string) (*classi.Classe, error) {
+				return nil, classi.ErrClasseNotFound(id)
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -223,27 +206,22 @@ func TestHandler_GetClasse(t *testing.T) {
 
 func TestHandler_ListSottoclassi(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		parentClasse := &classi.Classe{ID: "barbaro", Nome: "Barbaro"}
-		expectedSottoclassi := []classi.SottoClasse{
-			{ID: "berserker", Nome: "Berserker", IDClasseAssociata: "barbaro"},
-		}
-
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, id string) (*classi.Classe, error) {
-				if id == "barbaro" {
-					return parentClasse, nil
-				}
-				return nil, nil
-			},
-			listSottoclassiFunc: func(_ context.Context, classeID string, _ shared.ListFilter) ([]classi.SottoClasse, int, error) {
+		svc := &mockService{
+			listSottoclassiFunc: func(_ context.Context, classeID string, _ shared.ListFilter) (*classi.ListSottoclassiResponse, error) {
 				if classeID == "barbaro" {
-					return expectedSottoclassi, 1, nil
+					return &classi.ListSottoclassiResponse{
+						Pagina:           1,
+						NumeroDiElementi: 1,
+						Sottoclassi: []classi.SottoClasse{
+							{ID: "berserker", Nome: "Berserker", IDClasseAssociata: "barbaro"},
+						},
+					}, nil
 				}
-				return nil, 0, nil
+				return &classi.ListSottoclassiResponse{}, nil
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -267,13 +245,13 @@ func TestHandler_ListSottoclassi(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
-				return nil, nil
+		svc := &mockService{
+			listSottoclassiFunc: func(_ context.Context, classeID string, _ shared.ListFilter) (*classi.ListSottoclassiResponse, error) {
+				return nil, classi.ErrClasseNotFound(classeID)
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -290,29 +268,20 @@ func TestHandler_ListSottoclassi(t *testing.T) {
 
 func TestHandler_GetSottoclasse(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		parentClasse := &classi.Classe{ID: "barbaro", Nome: "Barbaro"}
-		expectedSottoclasse := &classi.SottoClasse{
-			ID:                "berserker",
-			Nome:              "Berserker",
-			IDClasseAssociata: "barbaro",
-		}
-
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, id string) (*classi.Classe, error) {
-				if id == "barbaro" {
-					return parentClasse, nil
-				}
-				return nil, nil
-			},
-			getSottoclasseByIDFunc: func(_ context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error) {
+		svc := &mockService{
+			getSottoclasseFunc: func(_ context.Context, classeID, sottoclasseID string) (*classi.SottoClasse, error) {
 				if classeID == "barbaro" && sottoclasseID == "berserker" {
-					return expectedSottoclasse, nil
+					return &classi.SottoClasse{
+						ID:                "berserker",
+						Nome:              "Berserker",
+						IDClasseAssociata: "barbaro",
+					}, nil
 				}
 				return nil, nil
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -336,13 +305,13 @@ func TestHandler_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
-				return nil, nil
+		svc := &mockService{
+			getSottoclasseFunc: func(_ context.Context, classeID, _ string) (*classi.SottoClasse, error) {
+				return nil, classi.ErrClasseNotFound(classeID)
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 
@@ -357,18 +326,13 @@ func TestHandler_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("sottoclasse not found", func(t *testing.T) {
-		parentClasse := &classi.Classe{ID: "barbaro", Nome: "Barbaro"}
-
-		repo := &mockRepository{
-			getByIDFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
-				return parentClasse, nil
-			},
-			getSottoclasseByIDFunc: func(_ context.Context, _, _ string) (*classi.SottoClasse, error) {
-				return nil, nil
+		svc := &mockService{
+			getSottoclasseFunc: func(_ context.Context, _, sottoclasseID string) (*classi.SottoClasse, error) {
+				return nil, classi.ErrSottoclasseNotFound(sottoclasseID)
 			},
 		}
 
-		handler := setupTestHandler(repo)
+		handler := NewHandler(svc)
 		r := chi.NewRouter()
 		r.Mount("/classi", handler.Routes())
 

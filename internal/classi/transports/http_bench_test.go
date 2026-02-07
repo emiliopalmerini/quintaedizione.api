@@ -30,23 +30,35 @@ var benchSottoclassi = []classi.SottoClasse{
 	{ID: "totemico", Nome: "Totemico", IDClasseAssociata: "barbaro"},
 }
 
+var benchListResponse = &classi.ListClassiResponse{
+	Pagina:           1,
+	NumeroDiElementi: len(benchClassi),
+	Classi:           benchClassi,
+}
+
+var benchSottoclassiResponse = &classi.ListSottoclassiResponse{
+	Pagina:           1,
+	NumeroDiElementi: len(benchSottoclassi),
+	Sottoclassi:      benchSottoclassi,
+}
+
 func setupBenchHandler() http.Handler {
-	repo := &mockRepository{
-		listFunc: func(_ context.Context, _ shared.ListFilter) ([]classi.Classe, int, error) {
-			return benchClassi, len(benchClassi), nil
+	svc := &mockService{
+		listClassiFunc: func(_ context.Context, _ shared.ListFilter) (*classi.ListClassiResponse, error) {
+			return benchListResponse, nil
 		},
-		getByIDFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
+		getClasseFunc: func(_ context.Context, _ string) (*classi.Classe, error) {
 			return &benchClassi[0], nil
 		},
-		listSottoclassiFunc: func(_ context.Context, _ string, _ shared.ListFilter) ([]classi.SottoClasse, int, error) {
-			return benchSottoclassi, len(benchSottoclassi), nil
+		listSottoclassiFunc: func(_ context.Context, _ string, _ shared.ListFilter) (*classi.ListSottoclassiResponse, error) {
+			return benchSottoclassiResponse, nil
 		},
-		getSottoclasseByIDFunc: func(_ context.Context, _, _ string) (*classi.SottoClasse, error) {
+		getSottoclasseFunc: func(_ context.Context, _, _ string) (*classi.SottoClasse, error) {
 			return &benchSottoclassi[0], nil
 		},
 	}
 
-	handler := setupTestHandler(repo)
+	handler := NewHandler(svc)
 	r := chi.NewRouter()
 	r.Mount("/classi", handler.Routes())
 	return r

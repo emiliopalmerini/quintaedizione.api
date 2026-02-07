@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Quinta Edizione",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "quintaedizione",
+      "Username": "postgres",
+      "SSLMode": "disable",
+      "PassFile": "/pgpassfile"
+    }
+  }
+}

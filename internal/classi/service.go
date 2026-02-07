@@ -2,6 +2,7 @@ package classi
 
 import (
 	"context"
+	"io"
 	"log/slog"
 
 	"github.com/emiliopalmerini/quintaedizione.api/internal/shared"
@@ -13,6 +14,9 @@ type Service struct {
 }
 
 func NewService(repo Repository, logger *slog.Logger) *Service {
+	if logger == nil {
+		logger = slog.New(slog.NewTextHandler(io.Discard, nil))
+	}
 	return &Service{
 		repo:   repo,
 		logger: logger,

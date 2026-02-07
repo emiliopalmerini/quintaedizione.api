@@ -79,6 +79,14 @@ func NewListFilterFromRequest(r *http.Request) (ListFilter, error) {
 	}
 
 	if docs := query["documentazione-di-riferimento"]; len(docs) > 0 {
+		if len(docs) > 10 {
+			return filter, fmt.Errorf("documentazione-di-riferimento: too many values (max 10)")
+		}
+		for _, d := range docs {
+			if len(d) > 100 {
+				return filter, fmt.Errorf("documentazione-di-riferimento: value exceeds max length of 100")
+			}
+		}
 		filter.DocumentazioneDiRiferimento = docs
 	}
 

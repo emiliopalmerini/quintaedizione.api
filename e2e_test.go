@@ -6,8 +6,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -33,13 +35,7 @@ import (
 
 const testDocRiferimento = "DND 2024"
 
-func skipIfDockerNotAvailable(t *testing.T) {
-	t.Helper()
-	cmd := exec.Command("docker", "info")
-	if err := cmd.Run(); err != nil {
-		t.Skip("Docker is not available, skipping e2e tests")
-	}
-}
+var api *testAPI
 
 type testAPI struct {
 	container *tcpostgres.PostgresContainer
@@ -47,9 +43,29 @@ type testAPI struct {
 	server    *httptest.Server
 }
 
-func setupTestAPI(t *testing.T) *testAPI {
-	t.Helper()
-	skipIfDockerNotAvailable(t)
+func TestMain(m *testing.M) {
+	if !isDockerAvailable() {
+		log.Println("Docker is not available, skipping e2e tests")
+		os.Exit(0)
+	}
+
+	var err error
+	api, err = newTestAPI()
+	if err != nil {
+		log.Fatalf("failed to setup test API: %v", err)
+	}
+
+	code := m.Run()
+
+	api.shutdown()
+	os.Exit(code)
+}
+
+func isDockerAvailable() bool {
+	return exec.Command("docker", "info").Run() == nil
+}
+
+func newTestAPI() (*testAPI, error) {
 	ctx := context.Background()
 
 	container, err := tcpostgres.Run(ctx,
@@ -64,13 +80,13 @@ func setupTestAPI(t *testing.T) *testAPI {
 		),
 	)
 	if err != nil {
-		t.Fatalf("failed to start postgres container: %v", err)
+		return nil, fmt.Errorf("start postgres container: %w", err)
 	}
 
 	port, err := container.MappedPort(ctx, "5432")
 	if err != nil {
 		container.Terminate(ctx)
-		t.Fatalf("failed to get mapped port: %v", err)
+		return nil, fmt.Errorf("get mapped port: %w", err)
 	}
 
 	connStr := fmt.Sprintf("postgres://testuser:testpass@127.0.0.1:%s/testdb?sslmode=disable", port.Port())
@@ -78,13 +94,13 @@ func setupTestAPI(t *testing.T) *testAPI {
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
 		container.Terminate(ctx)
-		t.Fatalf("failed to connect to database: %v", err)
+		return nil, fmt.Errorf("connect to database: %w", err)
 	}
 
 	if err := runTestMigrations(db); err != nil {
 		db.Close()
 		container.Terminate(ctx)
-		t.Fatalf("failed to run migrations: %v", err)
+		return nil, fmt.Errorf("run migrations: %w", err)
 	}
 
 	repo := persistence.NewPostgresRepository(db)
@@ -106,29 +122,26 @@ func setupTestAPI(t *testing.T) *testAPI {
 		container: container,
 		db:        db,
 		server:    server,
-	}
+	}, nil
 }
 
-func (api *testAPI) cleanup(t *testing.T) {
-	t.Helper()
-	ctx := context.Background()
-
-	api.server.Close()
-	api.db.Close()
-	api.container.Terminate(ctx)
+func (a *testAPI) shutdown() {
+	a.server.Close()
+	a.db.Close()
+	a.container.Terminate(context.Background())
 }
 
-func (api *testAPI) truncateTables(t *testing.T) {
+func (a *testAPI) truncateTables(t *testing.T) {
 	t.Helper()
-	_, err := api.db.Exec("TRUNCATE TABLE sottoclassi, classi CASCADE")
+	_, err := a.db.Exec("TRUNCATE TABLE sottoclassi, classi CASCADE")
 	if err != nil {
 		t.Fatalf("failed to truncate tables: %v", err)
 	}
 }
 
-func (api *testAPI) insertClasse(t *testing.T, id, nome string, dadoVita classi.TipoDiDado) {
+func (a *testAPI) insertClasse(t *testing.T, id, nome string, dadoVita classi.TipoDiDado) {
 	t.Helper()
-	_, err := api.db.Exec(`
+	_, err := a.db.Exec(`
 		INSERT INTO classi (id, nome, descrizione, documentazione_di_riferimento, dado_vita)
 		VALUES ($1, $2, $3, $4, $5)
 	`, id, nome, "Test description for "+nome, testDocRiferimento, string(dadoVita))
@@ -137,9 +150,9 @@ func (api *testAPI) insertClasse(t *testing.T, id, nome string, dadoVita classi.
 	}
 }
 
-func (api *testAPI) insertSottoclasse(t *testing.T, id, nome, classeID string) {
+func (a *testAPI) insertSottoclasse(t *testing.T, id, nome, classeID string) {
 	t.Helper()
-	_, err := api.db.Exec(`
+	_, err := a.db.Exec(`
 		INSERT INTO sottoclassi (id, nome, descrizione, documentazione_di_riferimento, id_classe_associata)
 		VALUES ($1, $2, $3, $4, $5)
 	`, id, nome, "Test description for "+nome, testDocRiferimento, classeID)
@@ -174,9 +187,6 @@ func runTestMigrations(db *sqlx.DB) error {
 }
 
 func TestE2E_HealthCheck(t *testing.T) {
-	api := setupTestAPI(t)
-	defer api.cleanup(t)
-
 	resp, err := http.Get(api.server.URL + "/health")
 	if err != nil {
 		t.Fatalf("failed to make request: %v", err)
@@ -198,9 +208,6 @@ func TestE2E_HealthCheck(t *testing.T) {
 }
 
 func TestE2E_ListClassi(t *testing.T) {
-	api := setupTestAPI(t)
-	defer api.cleanup(t)
-
 	t.Run("empty list", func(t *testing.T) {
 		api.truncateTables(t)
 
@@ -312,9 +319,6 @@ func TestE2E_ListClassi(t *testing.T) {
 }
 
 func TestE2E_GetClasse(t *testing.T) {
-	api := setupTestAPI(t)
-	defer api.cleanup(t)
-
 	api.truncateTables(t)
 	api.insertClasse(t, "barbaro", "Barbaro", classi.D12)
 	api.insertSottoclasse(t, "berserker", "Berserker", "barbaro")
@@ -376,9 +380,6 @@ func TestE2E_GetClasse(t *testing.T) {
 }
 
 func TestE2E_ListSottoclassi(t *testing.T) {
-	api := setupTestAPI(t)
-	defer api.cleanup(t)
-
 	api.truncateTables(t)
 	api.insertClasse(t, "barbaro", "Barbaro", classi.D12)
 	api.insertSottoclasse(t, "berserker", "Berserker", "barbaro")
@@ -442,9 +443,6 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 }
 
 func TestE2E_GetSottoclasse(t *testing.T) {
-	api := setupTestAPI(t)
-	defer api.cleanup(t)
-
 	api.truncateTables(t)
 	api.insertClasse(t, "barbaro", "Barbaro", classi.D12)
 	api.insertSottoclasse(t, "berserker", "Berserker", "barbaro")

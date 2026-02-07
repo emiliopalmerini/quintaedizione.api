@@ -231,12 +231,13 @@ func TestE2E_ListClassi(t *testing.T) {
 		}
 	})
 
-	t.Run("with data", func(t *testing.T) {
-		api.truncateTables(t)
-		api.insertClasse(t, "barbaro", "Barbaro", classi.D12)
-		api.insertClasse(t, "mago", "Mago", classi.D6)
-		api.insertClasse(t, "guerriero", "Guerriero", classi.D10)
+	// Seed data for subsequent subtests.
+	api.truncateTables(t)
+	api.insertClasse(t, "barbaro", "Barbaro", classi.D12)
+	api.insertClasse(t, "mago", "Mago", classi.D6)
+	api.insertClasse(t, "guerriero", "Guerriero", classi.D10)
 
+	t.Run("with data", func(t *testing.T) {
 		resp, err := http.Get(api.server.URL + "/v1/classi")
 		if err != nil {
 			t.Fatalf("failed to make request: %v", err)

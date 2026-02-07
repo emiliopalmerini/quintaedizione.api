@@ -44,6 +44,10 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 		return nil, fmt.Errorf("run migrations: %w", err)
 	}
 
+	if cfg.APIKey == "" {
+		logger.Warn("API_KEY is not set — authentication is disabled (dev mode)")
+	}
+
 	deps := &Dependencies{
 		DB:     db,
 		Logger: logger,

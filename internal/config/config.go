@@ -80,6 +80,9 @@ func (c *Config) validate() error {
 	if c.Database.URL == "" {
 		return fmt.Errorf("DATABASE_URL environment variable is required")
 	}
+	if c.APIKey == "" && c.Version != "dev" {
+		return fmt.Errorf("API_KEY environment variable is required in non-dev environments (APP_VERSION=%q)", c.Version)
+	}
 	return nil
 }
 

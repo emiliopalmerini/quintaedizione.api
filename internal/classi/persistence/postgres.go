@@ -23,7 +23,18 @@ func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
-// JSONB wrapper types for sqlx scanning
+// JSONB scanning helpers
+
+func scanJSON(src any, dest any) error {
+	if src == nil {
+		return nil
+	}
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("scanJSON: source is not []byte")
+	}
+	return json.Unmarshal(source, dest)
+}
 
 type proprietaLivelloSlice []classi.ProprietaLivello
 
@@ -32,11 +43,7 @@ func (p *proprietaLivelloSlice) Scan(src any) error {
 		*p = nil
 		return nil
 	}
-	source, ok := src.([]byte)
-	if !ok {
-		return errors.New("type assertion failed for proprietaLivelloSlice")
-	}
-	return json.Unmarshal(source, p)
+	return scanJSON(src, p)
 }
 
 func (p proprietaLivelloSlice) Value() (driver.Value, error) {
@@ -48,20 +55,8 @@ func (p proprietaLivelloSlice) Value() (driver.Value, error) {
 
 type equipaggiamentoPartenzaJSON classi.EquipaggiamentoPartenza
 
-func (e *equipaggiamentoPartenzaJSON) Scan(src any) error {
-	if src == nil {
-		return nil
-	}
-	source, ok := src.([]byte)
-	if !ok {
-		return errors.New("type assertion failed for equipaggiamentoPartenzaJSON")
-	}
-	return json.Unmarshal(source, e)
-}
-
-func (e equipaggiamentoPartenzaJSON) Value() (driver.Value, error) {
-	return json.Marshal(e)
-}
+func (e *equipaggiamentoPartenzaJSON) Scan(src any) error { return scanJSON(src, e) }
+func (e equipaggiamentoPartenzaJSON) Value() (driver.Value, error) { return json.Marshal(e) }
 
 type classeRow struct {
 	ID                          string                             `db:"id"`
@@ -115,25 +110,23 @@ func (r *sottoclasseRow) toSottoClasse() classi.SottoClasse {
 	return s
 }
 
-func (r *PostgresRepository) List(ctx context.Context, filter shared.ListFilter) ([]classi.Classe, int, error) {
-	query := `
-		SELECT id, nome, descrizione, documentazione_di_riferimento, dado_vita,
-		       equipaggiamento_partenza, proprieta_di_classe
-		FROM classi
-		WHERE 1=1
-	`
-	countQuery := `SELECT COUNT(*) FROM classi WHERE 1=1`
-	args := make(map[string]any)
+// paginatedQuery applies standard filters (nome, documentazione-di-riferimento),
+// sort order, and pagination to a base query and its count counterpart.
+type paginatedQuery struct {
+	query      string
+	countQuery string
+	args       map[string]any
+}
 
+func newPaginatedQuery(baseQuery, baseCountQuery string, args map[string]any, filter shared.ListFilter) *paginatedQuery {
 	if filter.Nome != nil {
-		query += ` AND nome ILIKE :nome`
-		countQuery += ` AND nome ILIKE :nome`
+		baseQuery += ` AND nome ILIKE :nome`
+		baseCountQuery += ` AND nome ILIKE :nome`
 		args["nome"] = "%" + shared.EscapeLike(*filter.Nome) + "%"
 	}
-
 	if len(filter.DocumentazioneDiRiferimento) > 0 {
-		query += ` AND documentazione_di_riferimento = ANY(:docs)`
-		countQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
+		baseQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
+		baseCountQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
 		args["docs"] = filter.DocumentazioneDiRiferimento
 	}
 
@@ -141,32 +134,57 @@ func (r *PostgresRepository) List(ctx context.Context, filter shared.ListFilter)
 	if filter.Sort == shared.SortDesc {
 		orderDir = "DESC"
 	}
-	query += fmt.Sprintf(` ORDER BY nome %s`, orderDir)
-	query += ` LIMIT :limit OFFSET :offset`
+	baseQuery += fmt.Sprintf(` ORDER BY nome %s`, orderDir)
+	baseQuery += ` LIMIT :limit OFFSET :offset`
 	args["limit"] = filter.Limit
 	args["offset"] = filter.Offset
 
-	// Get total count
-	var total int
-	countStmt, err := r.db.PrepareNamedContext(ctx, countQuery)
-	if err != nil {
-		return nil, 0, fmt.Errorf("prepare count query: %w", err)
-	}
-	defer countStmt.Close()
-	if err := countStmt.GetContext(ctx, &total, args); err != nil {
-		return nil, 0, fmt.Errorf("execute count query: %w", err)
-	}
+	return &paginatedQuery{query: baseQuery, countQuery: baseCountQuery, args: args}
+}
 
-	// Get paginated results
-	stmt, err := r.db.PrepareNamedContext(ctx, query)
+func (q *paginatedQuery) count(ctx context.Context, db *sqlx.DB) (int, error) {
+	var total int
+	stmt, err := db.PrepareNamedContext(ctx, q.countQuery)
 	if err != nil {
-		return nil, 0, fmt.Errorf("prepare query: %w", err)
+		return 0, fmt.Errorf("prepare count query: %w", err)
 	}
 	defer stmt.Close()
+	if err := stmt.GetContext(ctx, &total, q.args); err != nil {
+		return 0, fmt.Errorf("execute count query: %w", err)
+	}
+	return total, nil
+}
+
+func (q *paginatedQuery) selectRows(ctx context.Context, db *sqlx.DB, dest any) error {
+	stmt, err := db.PrepareNamedContext(ctx, q.query)
+	if err != nil {
+		return fmt.Errorf("prepare query: %w", err)
+	}
+	defer stmt.Close()
+	if err := stmt.SelectContext(ctx, dest, q.args); err != nil {
+		return fmt.Errorf("execute query: %w", err)
+	}
+	return nil
+}
+
+func (r *PostgresRepository) List(ctx context.Context, filter shared.ListFilter) ([]classi.Classe, int, error) {
+	q := newPaginatedQuery(
+		`SELECT id, nome, descrizione, documentazione_di_riferimento, dado_vita,
+		        equipaggiamento_partenza, proprieta_di_classe
+		 FROM classi WHERE 1=1`,
+		`SELECT COUNT(*) FROM classi WHERE 1=1`,
+		make(map[string]any),
+		filter,
+	)
+
+	total, err := q.count(ctx, r.db)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	var rows []classeRow
-	if err := stmt.SelectContext(ctx, &rows, args); err != nil {
-		return nil, 0, fmt.Errorf("execute query: %w", err)
+	if err := q.selectRows(ctx, r.db, &rows); err != nil {
+		return nil, 0, err
 	}
 
 	ids := make([]string, len(rows))
@@ -253,57 +271,23 @@ func (r *PostgresRepository) getSottoclassiRiferimentiByClasseIDs(ctx context.Co
 }
 
 func (r *PostgresRepository) ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) ([]classi.SottoClasse, int, error) {
-	query := `
-		SELECT id, nome, descrizione, documentazione_di_riferimento,
-		       id_classe_associata, proprieta_di_sottoclasse
-		FROM sottoclassi
-		WHERE id_classe_associata = :classe_id
-	`
-	countQuery := `SELECT COUNT(*) FROM sottoclassi WHERE id_classe_associata = :classe_id`
-	args := map[string]any{"classe_id": classeID}
+	q := newPaginatedQuery(
+		`SELECT id, nome, descrizione, documentazione_di_riferimento,
+		        id_classe_associata, proprieta_di_sottoclasse
+		 FROM sottoclassi WHERE id_classe_associata = :classe_id`,
+		`SELECT COUNT(*) FROM sottoclassi WHERE id_classe_associata = :classe_id`,
+		map[string]any{"classe_id": classeID},
+		filter,
+	)
 
-	if filter.Nome != nil {
-		query += ` AND nome ILIKE :nome`
-		countQuery += ` AND nome ILIKE :nome`
-		args["nome"] = "%" + shared.EscapeLike(*filter.Nome) + "%"
-	}
-
-	if len(filter.DocumentazioneDiRiferimento) > 0 {
-		query += ` AND documentazione_di_riferimento = ANY(:docs)`
-		countQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
-		args["docs"] = filter.DocumentazioneDiRiferimento
-	}
-
-	orderDir := "ASC"
-	if filter.Sort == shared.SortDesc {
-		orderDir = "DESC"
-	}
-	query += fmt.Sprintf(` ORDER BY nome %s`, orderDir)
-	query += ` LIMIT :limit OFFSET :offset`
-	args["limit"] = filter.Limit
-	args["offset"] = filter.Offset
-
-	// Get total count
-	var total int
-	countStmt, err := r.db.PrepareNamedContext(ctx, countQuery)
+	total, err := q.count(ctx, r.db)
 	if err != nil {
-		return nil, 0, fmt.Errorf("prepare count query: %w", err)
+		return nil, 0, err
 	}
-	defer countStmt.Close()
-	if err := countStmt.GetContext(ctx, &total, args); err != nil {
-		return nil, 0, fmt.Errorf("execute count query: %w", err)
-	}
-
-	// Get paginated results
-	stmt, err := r.db.PrepareNamedContext(ctx, query)
-	if err != nil {
-		return nil, 0, fmt.Errorf("prepare query: %w", err)
-	}
-	defer stmt.Close()
 
 	var rows []sottoclasseRow
-	if err := stmt.SelectContext(ctx, &rows, args); err != nil {
-		return nil, 0, fmt.Errorf("execute query: %w", err)
+	if err := q.selectRows(ctx, r.db, &rows); err != nil {
+		return nil, 0, err
 	}
 
 	result := make([]classi.SottoClasse, len(rows))

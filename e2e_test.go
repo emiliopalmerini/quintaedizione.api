@@ -37,11 +37,6 @@ func skipIfDockerNotAvailable(t *testing.T) {
 	if err := cmd.Run(); err != nil {
 		t.Skip("Docker is not available, skipping e2e tests")
 	}
-	// Also check if Docker daemon is actually running and accessible
-	cmd = exec.Command("docker", "ps")
-	if err := cmd.Run(); err != nil {
-		t.Skip("Docker daemon is not accessible, skipping e2e tests")
-	}
 }
 
 type testAPI struct {

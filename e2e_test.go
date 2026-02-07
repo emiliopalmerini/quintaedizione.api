@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -161,6 +162,29 @@ func (a *testAPI) insertSottoclasse(t *testing.T, id, nome, classeID string) {
 	}
 }
 
+// get performs a GET request, asserts the status code, and decodes the
+// JSON body into target (if non-nil). It returns the raw response for
+// additional assertions.
+func (a *testAPI) get(t *testing.T, path string, wantStatus int, target any) *http.Response {
+	t.Helper()
+	resp, err := http.Get(a.server.URL + path)
+	if err != nil {
+		t.Fatalf("GET %s: %v", path, err)
+	}
+	t.Cleanup(func() { resp.Body.Close() })
+
+	if resp.StatusCode != wantStatus {
+		body, _ := io.ReadAll(resp.Body)
+		t.Fatalf("GET %s: expected status %d, got %d; body: %s", path, wantStatus, resp.StatusCode, body)
+	}
+	if target != nil {
+		if err := json.NewDecoder(resp.Body).Decode(target); err != nil {
+			t.Fatalf("GET %s: failed to decode response: %v", path, err)
+		}
+	}
+	return resp
+}
+
 func runTestMigrations(db *sqlx.DB) error {
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
@@ -187,20 +211,8 @@ func runTestMigrations(db *sqlx.DB) error {
 }
 
 func TestE2E_HealthCheck(t *testing.T) {
-	resp, err := http.Get(api.server.URL + "/health")
-	if err != nil {
-		t.Fatalf("failed to make request: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("expected status 200, got %d", resp.StatusCode)
-	}
-
 	var result map[string]string
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		t.Fatalf("failed to decode response: %v", err)
-	}
+	api.get(t, "/health", http.StatusOK, &result)
 
 	if result["status"] != "ok" {
 		t.Errorf("expected status 'ok', got '%s'", result["status"])
@@ -211,20 +223,8 @@ func TestE2E_ListClassi(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		api.truncateTables(t)
 
-		resp, err := http.Get(api.server.URL + "/v1/classi")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected status 200, got %d", resp.StatusCode)
-		}
-
 		var result classi.ListClassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 0 {
 			t.Errorf("expected 0 elements, got %d", result.NumeroDiElementi)
@@ -238,20 +238,8 @@ func TestE2E_ListClassi(t *testing.T) {
 	api.insertClasse(t, "guerriero", "Guerriero", classi.D10)
 
 	t.Run("with data", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected status 200, got %d", resp.StatusCode)
-		}
-
 		var result classi.ListClassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 3 {
 			t.Errorf("expected 3 elements, got %d", result.NumeroDiElementi)
@@ -262,16 +250,8 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with name filter", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi?nome=bar")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
 		var result classi.ListClassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi?nome=bar", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 1 {
 			t.Errorf("expected 1 element, got %d", result.NumeroDiElementi)
@@ -282,16 +262,8 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with pagination", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi?$limit=2&$offset=0")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
 		var result classi.ListClassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi?$limit=2&$offset=0", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 3 {
 			t.Errorf("expected 3 total elements, got %d", result.NumeroDiElementi)
@@ -302,16 +274,8 @@ func TestE2E_ListClassi(t *testing.T) {
 	})
 
 	t.Run("with desc sort", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi?sort=desc")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
 		var result classi.ListClassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi?sort=desc", http.StatusOK, &result)
 
 		if result.Classi[0].Nome != "Mago" {
 			t.Errorf("expected first classe 'Mago' (desc order), got '%s'", result.Classi[0].Nome)
@@ -326,20 +290,8 @@ func TestE2E_GetClasse(t *testing.T) {
 	api.insertSottoclasse(t, "totemico", "Totemico", "barbaro")
 
 	t.Run("existing classe", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected status 200, got %d", resp.StatusCode)
-		}
-
 		var result classi.Classe
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi/barbaro", http.StatusOK, &result)
 
 		if result.ID != "barbaro" {
 			t.Errorf("expected id 'barbaro', got '%s'", result.ID)
@@ -356,20 +308,8 @@ func TestE2E_GetClasse(t *testing.T) {
 	})
 
 	t.Run("non-existing classe", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status 404, got %d", resp.StatusCode)
-		}
-
 		var result shared.ErrorObject
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi/nonexistent", http.StatusNotFound, &result)
 
 		if len(result.Errors) == 0 {
 			t.Fatal("expected error response")
@@ -387,20 +327,8 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	api.insertSottoclasse(t, "totemico", "Totemico", "barbaro")
 
 	t.Run("list sottoclassi", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected status 200, got %d", resp.StatusCode)
-		}
-
 		var result classi.ListSottoclassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi/barbaro/sotto-classi", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 2 {
 			t.Errorf("expected 2 elements, got %d", result.NumeroDiElementi)
@@ -411,28 +339,12 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent/sotto-classi")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status 404, got %d", resp.StatusCode)
-		}
+		api.get(t, "/v1/classi/nonexistent/sotto-classi", http.StatusNotFound, nil)
 	})
 
 	t.Run("with name filter", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi?nome=ber")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
 		var result classi.ListSottoclassiResponse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi/barbaro/sotto-classi?nome=ber", http.StatusOK, &result)
 
 		if result.NumeroDiElementi != 1 {
 			t.Errorf("expected 1 element, got %d", result.NumeroDiElementi)
@@ -449,20 +361,8 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	api.insertSottoclasse(t, "berserker", "Berserker", "barbaro")
 
 	t.Run("existing sottoclasse", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi/berserker")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("expected status 200, got %d", resp.StatusCode)
-		}
-
 		var result classi.SottoClasse
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			t.Fatalf("failed to decode response: %v", err)
-		}
+		api.get(t, "/v1/classi/barbaro/sotto-classi/berserker", http.StatusOK, &result)
 
 		if result.ID != "berserker" {
 			t.Errorf("expected id 'berserker', got '%s'", result.ID)
@@ -476,26 +376,10 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/nonexistent/sotto-classi/berserker")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status 404, got %d", resp.StatusCode)
-		}
+		api.get(t, "/v1/classi/nonexistent/sotto-classi/berserker", http.StatusNotFound, nil)
 	})
 
 	t.Run("sottoclasse not found", func(t *testing.T) {
-		resp, err := http.Get(api.server.URL + "/v1/classi/barbaro/sotto-classi/nonexistent")
-		if err != nil {
-			t.Fatalf("failed to make request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusNotFound {
-			t.Errorf("expected status 404, got %d", resp.StatusCode)
-		}
+		api.get(t, "/v1/classi/barbaro/sotto-classi/nonexistent", http.StatusNotFound, nil)
 	})
 }

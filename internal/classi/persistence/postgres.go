@@ -3,6 +3,9 @@ package persistence
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -20,14 +23,54 @@ func NewPostgresRepository(db *sqlx.DB) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
+// JSONB wrapper types for sqlx scanning
+
+type proprietaLivelloSlice []classi.ProprietaLivello
+
+func (p *proprietaLivelloSlice) Scan(src any) error {
+	if src == nil {
+		*p = nil
+		return nil
+	}
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("type assertion failed for proprietaLivelloSlice")
+	}
+	return json.Unmarshal(source, p)
+}
+
+func (p proprietaLivelloSlice) Value() (driver.Value, error) {
+	if p == nil {
+		return nil, nil
+	}
+	return json.Marshal(p)
+}
+
+type equipaggiamentoPartenzaJSON classi.EquipaggiamentoPartenza
+
+func (e *equipaggiamentoPartenzaJSON) Scan(src any) error {
+	if src == nil {
+		return nil
+	}
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("type assertion failed for equipaggiamentoPartenzaJSON")
+	}
+	return json.Unmarshal(source, e)
+}
+
+func (e equipaggiamentoPartenzaJSON) Value() (driver.Value, error) {
+	return json.Marshal(e)
+}
+
 type classeRow struct {
 	ID                          string                             `db:"id"`
 	Nome                        string                             `db:"nome"`
 	Descrizione                 sql.NullString                     `db:"descrizione"`
 	DocumentazioneDiRiferimento string                             `db:"documentazione_di_riferimento"`
 	DadoVita                    string                             `db:"dado_vita"`
-	EquipaggiamentoPartenza     classi.EquipaggiamentoPartenzaJSON `db:"equipaggiamento_partenza"`
-	ProprietaDiClasse           classi.ProprietaLivelloSlice       `db:"proprieta_di_classe"`
+	EquipaggiamentoPartenza     equipaggiamentoPartenzaJSON `db:"equipaggiamento_partenza"`
+	ProprietaDiClasse           proprietaLivelloSlice       `db:"proprieta_di_classe"`
 }
 
 func (r *classeRow) toClasse(sottoclassi []classi.RiferimentoSottoclasse) classi.Classe {
@@ -55,7 +98,7 @@ type sottoclasseRow struct {
 	Descrizione                 sql.NullString               `db:"descrizione"`
 	DocumentazioneDiRiferimento string                       `db:"documentazione_di_riferimento"`
 	IDClasseAssociata           string                       `db:"id_classe_associata"`
-	ProprietaDiSottoclasse      classi.ProprietaLivelloSlice `db:"proprieta_di_sottoclasse"`
+	ProprietaDiSottoclasse      proprietaLivelloSlice `db:"proprieta_di_sottoclasse"`
 }
 
 func (r *sottoclasseRow) toSottoClasse() classi.SottoClasse {

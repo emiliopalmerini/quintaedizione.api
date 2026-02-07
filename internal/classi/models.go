@@ -1,11 +1,5 @@
 package classi
 
-import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
-)
-
 type TipoDiDado string
 
 const (
@@ -102,42 +96,3 @@ type SottoClasse struct {
 	ProprietaDiSottoclasse      []ProprietaLivello `json:"proprietà-di-sottoclasse,omitempty"`
 }
 
-// JSONB wrapper types for sqlx scanning
-
-type ProprietaLivelloSlice []ProprietaLivello
-
-func (p *ProprietaLivelloSlice) Scan(src any) error {
-	if src == nil {
-		*p = nil
-		return nil
-	}
-	source, ok := src.([]byte)
-	if !ok {
-		return errors.New("type assertion failed for ProprietaLivelloSlice")
-	}
-	return json.Unmarshal(source, p)
-}
-
-func (p ProprietaLivelloSlice) Value() (driver.Value, error) {
-	if p == nil {
-		return nil, nil
-	}
-	return json.Marshal(p)
-}
-
-type EquipaggiamentoPartenzaJSON EquipaggiamentoPartenza
-
-func (e *EquipaggiamentoPartenzaJSON) Scan(src any) error {
-	if src == nil {
-		return nil
-	}
-	source, ok := src.([]byte)
-	if !ok {
-		return errors.New("type assertion failed for EquipaggiamentoPartenzaJSON")
-	}
-	return json.Unmarshal(source, e)
-}
-
-func (e EquipaggiamentoPartenzaJSON) Value() (driver.Value, error) {
-	return json.Marshal(e)
-}

@@ -20,12 +20,16 @@ func WriteJSON(w http.ResponseWriter, status int, data any) {
 func WriteError(w http.ResponseWriter, err error) {
 	var appErr *AppError
 	if errors.As(err, &appErr) {
-		slog.Error("request error",
-			"status", appErr.HTTPStatus,
-			"code", appErr.Response.Errors[0].Code,
-			"detail", appErr.Response.Errors[0].Detail,
-			"error", appErr.Err,
-		)
+		attrs := []any{"status", appErr.HTTPStatus, "error", appErr.Err}
+		if len(appErr.Response.Errors) > 0 {
+			attrs = append(attrs, "code", appErr.Response.Errors[0].Code,
+				"detail", appErr.Response.Errors[0].Detail)
+		}
+		if appErr.HTTPStatus >= 500 {
+			slog.Error("request error", attrs...)
+		} else {
+			slog.Warn("request error", attrs...)
+		}
 		WriteJSON(w, appErr.HTTPStatus, appErr.Response)
 		return
 	}

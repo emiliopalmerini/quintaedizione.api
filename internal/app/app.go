@@ -17,10 +17,13 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
-	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
-	"github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
+	classiPersistence "github.com/emiliopalmerini/quintaedizione.api/internal/classi/persistence"
+	classiTransports "github.com/emiliopalmerini/quintaedizione.api/internal/classi/transports"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/config"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/health"
+	"github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi"
+	incantesimiPersistence "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/persistence"
+	incantesimiTransports "github.com/emiliopalmerini/quintaedizione.api/internal/incantesimi/transports"
 	custommw "github.com/emiliopalmerini/quintaedizione.api/internal/middleware"
 )
 
@@ -103,10 +106,15 @@ func (a *App) setupRoutes() {
 	r.Route("/v1", func(r chi.Router) {
 		r.Use(custommw.APIKey(a.deps.Config.APIKey))
 
-		classiRepo := persistence.NewPostgresRepository(a.deps.DB)
+		classiRepo := classiPersistence.NewPostgresRepository(a.deps.DB)
 		classiService := classi.NewService(classiRepo, a.deps.Logger)
-		classiHandler := transports.NewHandler(classiService)
+		classiHandler := classiTransports.NewHandler(classiService)
 		r.Mount("/classi", classiHandler.Routes())
+
+		incantesimiRepo := incantesimiPersistence.NewPostgresRepository(a.deps.DB)
+		incantesimiService := incantesimi.NewService(incantesimiRepo, a.deps.Logger)
+		incantesimiHandler := incantesimiTransports.NewHandler(incantesimiService)
+		r.Mount("/incantesimi", incantesimiHandler.Routes())
 	})
 
 	a.router = r

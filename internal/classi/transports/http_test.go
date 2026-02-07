@@ -53,8 +53,7 @@ func TestHandler_ListClassi(t *testing.T) {
 		svc := &mockService{
 			listClassiFunc: func(_ context.Context, _ shared.ListFilter) (*classi.ListClassiResponse, error) {
 				return &classi.ListClassiResponse{
-					Pagina:           1,
-					NumeroDiElementi: 2,
+					PaginationMeta: shared.PaginationMeta{Pagina: 1, NumeroDiElementi: 2},
 					Classi: []classi.Classe{
 						{ID: "barbaro", Nome: "Barbaro", DadoVita: classi.D12},
 						{ID: "mago", Nome: "Mago", DadoVita: classi.D6},
@@ -210,8 +209,7 @@ func TestHandler_ListSottoclassi(t *testing.T) {
 			listSottoclassiFunc: func(_ context.Context, classeID string, _ shared.ListFilter) (*classi.ListSottoclassiResponse, error) {
 				if classeID == "barbaro" {
 					return &classi.ListSottoclassiResponse{
-						Pagina:           1,
-						NumeroDiElementi: 1,
+						PaginationMeta: shared.PaginationMeta{Pagina: 1, NumeroDiElementi: 1},
 						Sottoclassi: []classi.SottoClasse{
 							{ID: "berserker", Nome: "Berserker", IDClasseAssociata: "barbaro"},
 						},

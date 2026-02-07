@@ -31,15 +31,13 @@ var benchSottoclassi = []classi.SottoClasse{
 }
 
 var benchListResponse = &classi.ListClassiResponse{
-	Pagina:           1,
-	NumeroDiElementi: len(benchClassi),
-	Classi:           benchClassi,
+	PaginationMeta: shared.PaginationMeta{Pagina: 1, NumeroDiElementi: len(benchClassi)},
+	Classi:         benchClassi,
 }
 
 var benchSottoclassiResponse = &classi.ListSottoclassiResponse{
-	Pagina:           1,
-	NumeroDiElementi: len(benchSottoclassi),
-	Sottoclassi:      benchSottoclassi,
+	PaginationMeta: shared.PaginationMeta{Pagina: 1, NumeroDiElementi: len(benchSottoclassi)},
+	Sottoclassi:    benchSottoclassi,
 }
 
 func setupBenchHandler() http.Handler {

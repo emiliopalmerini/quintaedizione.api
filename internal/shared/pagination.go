@@ -100,6 +100,11 @@ func NewListFilterFromRequest(r *http.Request) (ListFilter, error) {
 	return filter, nil
 }
 
+type PaginationMeta struct {
+	Pagina           int `json:"pagina"`
+	NumeroDiElementi int `json:"numero-di-elementi"`
+}
+
 func (f ListFilter) Page() int {
 	if f.Limit == 0 {
 		return 0

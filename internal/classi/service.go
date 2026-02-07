@@ -31,9 +31,8 @@ func (s *Service) ListClassi(ctx context.Context, filter shared.ListFilter) (*Li
 	}
 
 	return &ListClassiResponse{
-		Pagina:           filter.Page(),
-		NumeroDiElementi: total,
-		Classi:           classi,
+		PaginationMeta: shared.PaginationMeta{Pagina: filter.Page(), NumeroDiElementi: total},
+		Classi:         classi,
 	}, nil
 }
 
@@ -49,15 +48,21 @@ func (s *Service) GetClasse(ctx context.Context, id string) (*Classe, error) {
 	return classe, nil
 }
 
-func (s *Service) ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) (*ListSottoclassiResponse, error) {
-	// Verify parent classe exists
+func (s *Service) verifyClasseExists(ctx context.Context, classeID string) error {
 	classe, err := s.repo.GetByID(ctx, classeID)
 	if err != nil {
 		s.logger.Error("failed to verify classe existence", "id", classeID, "error", err)
-		return nil, shared.NewInternalError(err)
+		return shared.NewInternalError(err)
 	}
 	if classe == nil {
-		return nil, ErrClasseNotFound(classeID)
+		return ErrClasseNotFound(classeID)
+	}
+	return nil
+}
+
+func (s *Service) ListSottoclassi(ctx context.Context, classeID string, filter shared.ListFilter) (*ListSottoclassiResponse, error) {
+	if err := s.verifyClasseExists(ctx, classeID); err != nil {
+		return nil, err
 	}
 
 	sottoclassi, total, err := s.repo.ListSottoclassi(ctx, classeID, filter)
@@ -67,21 +72,14 @@ func (s *Service) ListSottoclassi(ctx context.Context, classeID string, filter s
 	}
 
 	return &ListSottoclassiResponse{
-		Pagina:           filter.Page(),
-		NumeroDiElementi: total,
-		Sottoclassi:      sottoclassi,
+		PaginationMeta: shared.PaginationMeta{Pagina: filter.Page(), NumeroDiElementi: total},
+		Sottoclassi:    sottoclassi,
 	}, nil
 }
 
 func (s *Service) GetSottoclasse(ctx context.Context, classeID, sottoclasseID string) (*SottoClasse, error) {
-	// Verify parent classe exists
-	classe, err := s.repo.GetByID(ctx, classeID)
-	if err != nil {
-		s.logger.Error("failed to verify classe existence", "id", classeID, "error", err)
-		return nil, shared.NewInternalError(err)
-	}
-	if classe == nil {
-		return nil, ErrClasseNotFound(classeID)
+	if err := s.verifyClasseExists(ctx, classeID); err != nil {
+		return nil, err
 	}
 
 	sottoclasse, err := s.repo.GetSottoclasseByID(ctx, classeID, sottoclasseID)

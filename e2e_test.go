@@ -173,6 +173,9 @@ func (a *testAPI) get(t *testing.T, path string, wantStatus int, target any) *ht
 	}
 	t.Cleanup(func() { resp.Body.Close() })
 
+	if ct := resp.Header.Get("Content-Type"); ct != "application/json" {
+		t.Errorf("GET %s: expected Content-Type application/json, got %q", path, ct)
+	}
 	if resp.StatusCode != wantStatus {
 		body, _ := io.ReadAll(resp.Body)
 		t.Fatalf("GET %s: expected status %d, got %d; body: %s", path, wantStatus, resp.StatusCode, body)
@@ -281,6 +284,66 @@ func TestE2E_ListClassi(t *testing.T) {
 			t.Errorf("expected first classe 'Mago' (desc order), got '%s'", result.Classi[0].Nome)
 		}
 	})
+
+	t.Run("with second page", func(t *testing.T) {
+		var result classi.ListClassiResponse
+		api.get(t, "/v1/classi?$limit=2&$offset=2", http.StatusOK, &result)
+
+		if result.NumeroDiElementi != 3 {
+			t.Errorf("expected 3 total elements, got %d", result.NumeroDiElementi)
+		}
+		if len(result.Classi) != 1 {
+			t.Errorf("expected 1 classe on second page, got %d", len(result.Classi))
+		}
+	})
+
+	t.Run("with documentazione filter", func(t *testing.T) {
+		var result classi.ListClassiResponse
+		api.get(t, "/v1/classi?documentazione-di-riferimento=DND+2024", http.StatusOK, &result)
+
+		if result.NumeroDiElementi != 3 {
+			t.Errorf("expected 3 elements, got %d", result.NumeroDiElementi)
+		}
+	})
+
+	t.Run("invalid limit", func(t *testing.T) {
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi?$limit=-1", http.StatusBadRequest, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+		if result.Errors[0].Code != "BAD_REQUEST" {
+			t.Errorf("expected code 'BAD_REQUEST', got '%s'", result.Errors[0].Code)
+		}
+	})
+
+	t.Run("limit exceeds max", func(t *testing.T) {
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi?$limit=999", http.StatusBadRequest, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+	})
+
+	t.Run("invalid offset", func(t *testing.T) {
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi?$offset=-1", http.StatusBadRequest, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+	})
+
+	t.Run("invalid sort", func(t *testing.T) {
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi?sort=invalid", http.StatusBadRequest, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+	})
 }
 
 func TestE2E_GetClasse(t *testing.T) {
@@ -339,7 +402,15 @@ func TestE2E_ListSottoclassi(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		api.get(t, "/v1/classi/nonexistent/sotto-classi", http.StatusNotFound, nil)
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi/nonexistent/sotto-classi", http.StatusNotFound, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+		if result.Errors[0].Code != "NOT_FOUND" {
+			t.Errorf("expected code 'NOT_FOUND', got '%s'", result.Errors[0].Code)
+		}
 	})
 
 	t.Run("with name filter", func(t *testing.T) {
@@ -376,10 +447,26 @@ func TestE2E_GetSottoclasse(t *testing.T) {
 	})
 
 	t.Run("parent not found", func(t *testing.T) {
-		api.get(t, "/v1/classi/nonexistent/sotto-classi/berserker", http.StatusNotFound, nil)
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi/nonexistent/sotto-classi/berserker", http.StatusNotFound, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+		if result.Errors[0].Code != "NOT_FOUND" {
+			t.Errorf("expected code 'NOT_FOUND', got '%s'", result.Errors[0].Code)
+		}
 	})
 
 	t.Run("sottoclasse not found", func(t *testing.T) {
-		api.get(t, "/v1/classi/barbaro/sotto-classi/nonexistent", http.StatusNotFound, nil)
+		var result shared.ErrorObject
+		api.get(t, "/v1/classi/barbaro/sotto-classi/nonexistent", http.StatusNotFound, &result)
+
+		if len(result.Errors) == 0 {
+			t.Fatal("expected error response")
+		}
+		if result.Errors[0].Code != "NOT_FOUND" {
+			t.Errorf("expected code 'NOT_FOUND', got '%s'", result.Errors[0].Code)
+		}
 	})
 }

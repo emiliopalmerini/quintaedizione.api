@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.2"
+
+      - name: Format check
+        run: test -z "$(gofmt -l .)"
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build -o bin/api ./cmd/api
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.2"
+
+      - name: Unit tests
+        run: go test -race -coverprofile=coverage.out ./internal/...
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  test-e2e:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.2"
+
+      - name: E2E tests
+        run: go test -tags e2e -v -race .
+
+  benchmark:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.2"
+
+      - name: Install benchstat
+        run: go install golang.org/x/perf/cmd/benchstat@latest
+
+      - name: Run benchmarks
+        run: go test -bench=. -benchmem -count=6 ./internal/... > bench_new.txt
+
+      - name: Download baseline
+        uses: actions/cache@v4
+        id: bench-cache
+        with:
+          path: bench_baseline.txt
+          key: bench-baseline-${{ github.base_ref || 'main' }}
+
+      - name: Compare benchmarks
+        if: steps.bench-cache.outputs.cache-hit == 'true'
+        run: |
+          benchstat bench_baseline.txt bench_new.txt | tee bench_comparison.txt
+          if grep -P '\s\+[1-9][0-9]+\.\d+%' bench_comparison.txt; then
+            echo "::error::Significant performance regression detected (>10%)"
+            exit 1
+          fi
+
+      - name: Update baseline
+        if: github.ref == 'refs/heads/main'
+        run: cp bench_new.txt bench_baseline.txt

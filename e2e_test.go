@@ -31,6 +31,8 @@ import (
 	"github.com/emiliopalmerini/quintaedizione.api/internal/shared"
 )
 
+const testDocRiferimento = "DND 2024"
+
 func skipIfDockerNotAvailable(t *testing.T) {
 	t.Helper()
 	cmd := exec.Command("docker", "info")
@@ -86,7 +88,7 @@ func setupTestAPI(t *testing.T) *testAPI {
 	}
 
 	repo := persistence.NewPostgresRepository(db)
-	service := classi.NewService(repo, nil)
+	service := classi.NewService(repo, nil) // nil logger defaults to discard
 	handler := transports.NewHandler(service)
 
 	r := chi.NewRouter()
@@ -129,7 +131,7 @@ func (api *testAPI) insertClasse(t *testing.T, id, nome string, dadoVita classi.
 	_, err := api.db.Exec(`
 		INSERT INTO classi (id, nome, descrizione, documentazione_di_riferimento, dado_vita)
 		VALUES ($1, $2, $3, $4, $5)
-	`, id, nome, "Test description for "+nome, "DND 2024", string(dadoVita))
+	`, id, nome, "Test description for "+nome, testDocRiferimento, string(dadoVita))
 	if err != nil {
 		t.Fatalf("failed to insert classe: %v", err)
 	}
@@ -140,7 +142,7 @@ func (api *testAPI) insertSottoclasse(t *testing.T, id, nome, classeID string) {
 	_, err := api.db.Exec(`
 		INSERT INTO sottoclassi (id, nome, descrizione, documentazione_di_riferimento, id_classe_associata)
 		VALUES ($1, $2, $3, $4, $5)
-	`, id, nome, "Test description for "+nome, "DND 2024", classeID)
+	`, id, nome, "Test description for "+nome, testDocRiferimento, classeID)
 	if err != nil {
 		t.Fatalf("failed to insert sottoclasse: %v", err)
 	}

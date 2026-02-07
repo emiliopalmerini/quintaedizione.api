@@ -1,8 +1,0 @@
-{
-  "name": "talenti",
-  "name_plural": "talenti",
-  "name_capital": "Talento",
-  "name_plural_cap": "Talenti",
-  "table_name": "talenti",
-  "route_param": "id-talento"
-}

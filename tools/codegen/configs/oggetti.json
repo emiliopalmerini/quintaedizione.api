@@ -1,8 +1,0 @@
-{
-  "name": "oggetti",
-  "name_plural": "oggetti",
-  "name_capital": "Oggetto",
-  "name_plural_cap": "Oggetti",
-  "table_name": "oggetti",
-  "route_param": "id-oggetto"
-}

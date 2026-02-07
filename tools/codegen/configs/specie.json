@@ -1,8 +1,0 @@
-{
-  "name": "specie",
-  "name_plural": "specie",
-  "name_capital": "Specie",
-  "name_plural_cap": "Specie",
-  "table_name": "specie",
-  "route_param": "id-specie"
-}

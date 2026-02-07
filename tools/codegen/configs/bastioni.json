@@ -1,8 +1,0 @@
-{
-  "name": "bastioni",
-  "name_plural": "bastioni",
-  "name_capital": "Bastione",
-  "name_plural_cap": "Bastioni",
-  "table_name": "bastioni",
-  "route_param": "id-bastione"
-}

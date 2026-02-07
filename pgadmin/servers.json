@@ -8,7 +8,7 @@
       "MaintenanceDB": "quintaedizione",
       "Username": "postgres",
       "SSLMode": "disable",
-      "PassFile": "/pgpassfile"
+      "PassFile": "/tmp/pgpassfile"
     }
   }
 }

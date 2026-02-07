@@ -23,6 +23,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+      PGPASSFILE: /tmp/pgpassfile
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
@@ -36,7 +37,6 @@ services:
       /bin/sh -c '
       echo "postgres:5432:*:$${POSTGRES_USER}:$${POSTGRES_PASSWORD}" > /tmp/pgpassfile &&
       chmod 600 /tmp/pgpassfile &&
-      cp /tmp/pgpassfile /pgpassfile &&
       /entrypoint.sh
       '
     restart: unless-stopped

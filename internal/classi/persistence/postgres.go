@@ -85,7 +85,7 @@ func (r *PostgresRepository) List(ctx context.Context, filter shared.ListFilter)
 	if filter.Nome != nil {
 		query += ` AND nome ILIKE :nome`
 		countQuery += ` AND nome ILIKE :nome`
-		args["nome"] = "%" + *filter.Nome + "%"
+		args["nome"] = "%" + shared.EscapeLike(*filter.Nome) + "%"
 	}
 
 	if len(filter.DocumentazioneDiRiferimento) > 0 {
@@ -222,7 +222,7 @@ func (r *PostgresRepository) ListSottoclassi(ctx context.Context, classeID strin
 	if filter.Nome != nil {
 		query += ` AND nome ILIKE :nome`
 		countQuery += ` AND nome ILIKE :nome`
-		args["nome"] = "%" + *filter.Nome + "%"
+		args["nome"] = "%" + shared.EscapeLike(*filter.Nome) + "%"
 	}
 
 	if len(filter.DocumentazioneDiRiferimento) > 0 {

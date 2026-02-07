@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 
 	"github.com/emiliopalmerini/quintaedizione.api/internal/classi"
 	"github.com/emiliopalmerini/quintaedizione.api/internal/shared"
@@ -125,13 +126,19 @@ func (r *PostgresRepository) List(ctx context.Context, filter shared.ListFilter)
 		return nil, 0, fmt.Errorf("execute query: %w", err)
 	}
 
+	ids := make([]string, len(rows))
+	for i, row := range rows {
+		ids[i] = row.ID
+	}
+
+	refMap, err := r.getSottoclassiRiferimentiByClasseIDs(ctx, ids)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	result := make([]classi.Classe, 0, len(rows))
 	for _, row := range rows {
-		sottoclassi, err := r.getSottoclassiRiferimenti(ctx, row.ID)
-		if err != nil {
-			return nil, 0, err
-		}
-		result = append(result, row.toClasse(sottoclassi))
+		result = append(result, row.toClasse(refMap[row.ID]))
 	}
 
 	return result, total, nil
@@ -173,6 +180,31 @@ func (r *PostgresRepository) getSottoclassiRiferimenti(ctx context.Context, clas
 	result := make([]classi.RiferimentoSottoclasse, len(ids))
 	for i, id := range ids {
 		result[i] = classi.RiferimentoSottoclasse{IDSottoclasse: id}
+	}
+	return result, nil
+}
+
+type sottoclasseRef struct {
+	ID                string `db:"id"`
+	IDClasseAssociata string `db:"id_classe_associata"`
+}
+
+func (r *PostgresRepository) getSottoclassiRiferimentiByClasseIDs(ctx context.Context, classeIDs []string) (map[string][]classi.RiferimentoSottoclasse, error) {
+	result := make(map[string][]classi.RiferimentoSottoclasse)
+	if len(classeIDs) == 0 {
+		return result, nil
+	}
+
+	query := `SELECT id, id_classe_associata FROM sottoclassi WHERE id_classe_associata = ANY($1) ORDER BY nome`
+
+	var refs []sottoclasseRef
+	if err := r.db.SelectContext(ctx, &refs, query, pq.Array(classeIDs)); err != nil {
+		return nil, fmt.Errorf("batch get sottoclassi riferimenti: %w", err)
+	}
+
+	for _, ref := range refs {
+		result[ref.IDClasseAssociata] = append(result[ref.IDClasseAssociata],
+			classi.RiferimentoSottoclasse{IDSottoclasse: ref.ID})
 	}
 	return result, nil
 }

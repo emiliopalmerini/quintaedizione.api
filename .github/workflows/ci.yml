@@ -88,7 +88,7 @@ jobs:
         if: steps.bench-cache.outputs.cache-hit == 'true'
         run: |
           benchstat bench_baseline.txt bench_new.txt | tee bench_comparison.txt
-          if grep -E '\+[1-9][0-9]\.' bench_comparison.txt; then
+          if grep -P '\s\+[1-9][0-9]+\.\d+%' bench_comparison.txt; then
             echo "::error::Significant performance regression detected (>10%)"
             exit 1
           fi

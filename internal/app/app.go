@@ -39,9 +39,13 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 	db.SetMaxIdleConns(cfg.Database.MaxIdleConns)
 	db.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
 
-	if err := runMigrations(db); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("run migrations: %w", err)
+	if cfg.Version == "dev" {
+		logger.Info("dev mode: running auto-migrations")
+		if err := runMigrations(db); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("run migrations: %w", err)
+		}
+		logger.Info("migrations applied successfully")
 	}
 
 	if cfg.APIKey == "" {
@@ -56,8 +60,6 @@ func New(cfg *config.Config, logger *slog.Logger) (*App, error) {
 
 	app := &App{deps: deps}
 	app.setupRoutes()
-
-	logger.Info("migrations applied successfully")
 
 	return app, nil
 }

@@ -127,7 +127,7 @@ func newPaginatedQuery(baseQuery, baseCountQuery string, args map[string]any, fi
 	if len(filter.DocumentazioneDiRiferimento) > 0 {
 		baseQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
 		baseCountQuery += ` AND documentazione_di_riferimento = ANY(:docs)`
-		args["docs"] = filter.DocumentazioneDiRiferimento
+		args["docs"] = pq.Array(filter.DocumentazioneDiRiferimento)
 	}
 
 	orderDir := "ASC"

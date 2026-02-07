@@ -95,4 +95,3 @@ type SottoClasse struct {
 	IDClasseAssociata           string             `json:"id-classe-associata" db:"id_classe_associata"`
 	ProprietaDiSottoclasse      []ProprietaLivello `json:"proprietà-di-sottoclasse,omitempty"`
 }
-

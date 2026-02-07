@@ -55,15 +55,15 @@ func (p proprietaLivelloSlice) Value() (driver.Value, error) {
 
 type equipaggiamentoPartenzaJSON classi.EquipaggiamentoPartenza
 
-func (e *equipaggiamentoPartenzaJSON) Scan(src any) error { return scanJSON(src, e) }
+func (e *equipaggiamentoPartenzaJSON) Scan(src any) error          { return scanJSON(src, e) }
 func (e equipaggiamentoPartenzaJSON) Value() (driver.Value, error) { return json.Marshal(e) }
 
 type classeRow struct {
-	ID                          string                             `db:"id"`
-	Nome                        string                             `db:"nome"`
-	Descrizione                 sql.NullString                     `db:"descrizione"`
-	DocumentazioneDiRiferimento string                             `db:"documentazione_di_riferimento"`
-	DadoVita                    string                             `db:"dado_vita"`
+	ID                          string                      `db:"id"`
+	Nome                        string                      `db:"nome"`
+	Descrizione                 sql.NullString              `db:"descrizione"`
+	DocumentazioneDiRiferimento string                      `db:"documentazione_di_riferimento"`
+	DadoVita                    string                      `db:"dado_vita"`
 	EquipaggiamentoPartenza     equipaggiamentoPartenzaJSON `db:"equipaggiamento_partenza"`
 	ProprietaDiClasse           proprietaLivelloSlice       `db:"proprieta_di_classe"`
 }
@@ -88,11 +88,11 @@ func (r *classeRow) toClasse(sottoclassi []classi.RiferimentoSottoclasse) classi
 }
 
 type sottoclasseRow struct {
-	ID                          string                       `db:"id"`
-	Nome                        string                       `db:"nome"`
-	Descrizione                 sql.NullString               `db:"descrizione"`
-	DocumentazioneDiRiferimento string                       `db:"documentazione_di_riferimento"`
-	IDClasseAssociata           string                       `db:"id_classe_associata"`
+	ID                          string                `db:"id"`
+	Nome                        string                `db:"nome"`
+	Descrizione                 sql.NullString        `db:"descrizione"`
+	DocumentazioneDiRiferimento string                `db:"documentazione_di_riferimento"`
+	IDClasseAssociata           string                `db:"id_classe_associata"`
 	ProprietaDiSottoclasse      proprietaLivelloSlice `db:"proprieta_di_sottoclasse"`
 }
 

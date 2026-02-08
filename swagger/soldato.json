@@ -1,0 +1,402 @@
+{
+    "id": "SOLDATO_5e_2024",
+    "nome": "Soldato",
+    "documentazione-di-riferimento": "DND 2024",
+    "caratteristiche-associate": [
+        "Forza",
+        "Destrezza",
+        "Costituzione"
+    ],
+    "id-talento": "ATTACCANTE_SELVAGGIO_5e_2024",
+    "competenza-abilità": [{
+            "abilità": "Atletica",
+            "competenza": true,
+            "expertise": false,
+            "bonus": 0,
+            "caratteristica-collegata": "Forza"
+        }, {
+            "abilità": "Intimidire",
+            "competenza": true,
+            "expertise": false,
+            "bonus": 0,
+            "caratteristica-collegata": "Carisma"
+        }
+    ],
+    "competenza-utensili": [{
+            "id-utensile": "SET_DA_GIOCO_5e_2024"
+        }
+    ],
+    "equipaggiamento": {
+        "opzione-a": {
+            "oggetti": [{
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Arma",
+                        "nome": "Lancia",
+                        "id": "LANCIA_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Una lancia è un'arma versatile con portata.",
+                        "categoria": "Semplice",
+                        "tipo": "Melee",
+                        "mani-occupate": 1,
+                        "id-maestria": "SAP_5e_2024",
+                        "danno": [{
+                                "numero-dadi": 1,
+                                "tipo-dado": "D6",
+                                "tipo-danno": "Perforante"
+                            }
+                        ],
+                        "peso": {
+                            "valore": 3,
+                            "unità-di-misura": "lb"
+                        },
+                        "proprietà-arma": [{
+                                "nome":
+                                "Da Lancio",
+                                "descrizione": "Se un'arma ha la proprietà da Lancio, puoi lanciarla per effettuare un attacco a distanza e puoi estrarla come parte dell'attacco. Se l'arma è un'arma da mischia, usa lo stesso modificatore di abilità per i tiri di attacco e danno che usi per un attacco in mischia con quell'arma."
+                            }, {
+                                "nome": "Versatile",
+                                "descrizione": "Un'arma versatile può essere utilizzata con una o due mani. Il valore del danno è indicato tra parentesi accanto alla proprietà. L'arma infligge quel danno quando viene utilizzata con due mani per effettuare un attacco in mischia."
+                            }
+                        ],
+                        "azioni": [{
+                                "proprietà-arma": "Default",
+                                "attacco": {
+                                    "id": "ATTACCO_LANCIA_5e_2024",
+                                    "nome": "Attacco Lancia",
+                                    "tipo": "Melee",
+                                    "descrizione": "Colpisci un bersaglio con la Lancia",
+                                    "tipo-di-azione": "Azione",
+                                    "link": {
+                                        "id-oggetto": "LANCIA_5e_2024"
+                                    },
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 0,
+                                        "distanza-massima": 5,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "caratteristica-associata": "Forza",
+                                    "effetto-attacco": {
+                                        [{
+                                                "numero-dadi": 1,
+                                                "tipo-dado": "D6",
+                                                "tipo-danno": "Perforante"
+                                            }
+                                        ],
+                                    }
+                                }
+                            }, {
+                                "proprietà-arma": "Da Lancio",
+                                "attacco": {
+                                    "id": "ATTACCO_DA_LANCIO_LANCIA_5e_2024",
+                                    "nome": "attacco da lancio lancia",
+                                    "tipo": "Distanza",
+                                    "descrizione": "Colpisci un bersaglio a distanza lanciando la Lancia.",
+                                    "tipo-di-azione": "Azione",
+                                    "link": {
+                                        "id-oggetto": "LANCIA_5e_2024"
+                                    },
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 20,
+                                        "distanza-massima": 60,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "caratteristica-associata": "Forza",
+                                    "effetto-attacco": {
+                                        [{
+                                                "numero-dadi": 1,
+                                                "tipo-dado": "D6",
+                                                "tipo-danno": "Perforante"
+                                            }
+                                        ],
+                                    }
+                                }
+                            }, {
+                                "proprietà-arma": "Versatile",
+                                "attacco": {
+                                    "id": "ATTACCO_VERSATILE_LANCIA_5e_2024",
+                                    "nome": "Attacco Lancia (Due Mani)",
+                                    "tipo": "Melee",
+                                    "descrizione": "Colpisci un bersaglio con la Lancia impugnata a due mani.",
+                                    "tipo-di-azione": "Azione",
+                                    "link": {
+                                        "id-oggetto": "LANCIA_5e_2024"
+                                    },
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 0,
+                                        "distanza-massima": 5,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "caratteristica-associata": "Forza",
+                                    "effetto-attacco": {
+                                        [{
+                                                "numero-dadi": 1,
+                                                "tipo-dado": "D8",
+                                                "tipo-danno": "Perforante"
+                                            }
+                                        ],
+                                    }
+                                }
+                            }
+                        ],
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 1
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Arma",
+                        "nome": "Arco Corto",
+                        "id": "ARCO_CORTO_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un arco corto è un'arma a distanza semplice.",
+                        "categoria": "Semplice",
+                        "tipo": "Distanza",
+                        "mani-occupate": "2",
+                        "id-maestria": "VEX_5e_2024",
+                        "danno": [{
+                                "numero-dadi": 1,
+                                "tipo-dado": "D6",
+                                "tipo-danno": "Perforante"
+                            }
+                        ],
+                        "peso": {
+                            "valore": 2,
+                            "unità-di-misura": "lb"
+                        },
+                        "proprietà-arma": [{
+                                "nome": "Munizioni",
+                                "descrizione": "È possibile utilizzare un'arma dotata della proprietà Munizioni per effettuare un attacco a distanza solo se si dispone delle munizioni necessarie per sparare. Il tipo di munizioni richiesto è specificato nella portata dell'arma. Ogni attacco consuma una munizione. Estrarre le munizioni fa parte dell'attacco (è necessaria una mano libera per caricare un'arma a una mano). Dopo un combattimento, puoi impiegare 1 minuto per recuperare metà delle munizioni (arrotondate per difetto) che hai usato nel combattimento; il resto va perso.",
+                                "nome": "Gittata",
+                                "descrizione": " Un'arma a distanza ha una gittata indicata tra parentesi dopo la proprietà Munizioni o Lanciata. La gittata è indicata da due numeri. Il primo è la gittata normale dell'arma in piedi, mentre il secondo è la gittata lunga dell'arma. Quando attacchi un bersaglio oltre la gittata normale, hai svantaggio sul tiro per colpire. Non puoi attaccare un bersaglio oltre la gittata lunga."
+                            }, {
+                                "nome":
+                                "A Due Mani",
+                                "descrizione": "Un'arma a due mani richiede entrambe le mani per essere utilizzata in attacco."
+                            }
+                        ],
+                        "azioni": [{
+                                "proprietà-arma": "Gittata",
+                                "attacco": {
+                                    "id": "ATTACCO_ARCO_CORTO_5e_2024",
+                                    "nome": "attacco arco corto",
+                                    "tipo": "Distanza",
+                                    "descrizione": "",
+                                    "tipo-di-azione": "Azione",
+                                    "link": {
+                                        "id-oggetto": "ARCO_CORTO_5e_2024"
+                                    },
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 80,
+                                        "distanza-massima": 320,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "caratteristica-associata": "Destrezza",
+                                    "effetto-attacco": [{
+                                            "numero-dadi": 1,
+                                            "tipo-dado": "D6",
+                                            "tipo-danno": "Perforante"
+                                        }
+                                    ],
+                                }
+                            }
+                        ],
+                        "costo": {
+                            "quantità": 25,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 25
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 20,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Freccia",
+                        "id": "FRECCIA_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Le frecce sono munizioni utilizzate con archi.",
+                        "consumabile": true,
+                        "peso": {
+                            "valore": 0.05,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 1
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Utensile",
+                        "nome": "Set da Gioco",
+                        "id": "SET_DA_GIOCO_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un set da gioco comprende tutti gli strumenti necessari per giocare a uno specifico gioco, come dadi, carte da gioco, scacchi o altri passatempi.",
+                        "competenza": true,
+                        "caratteristica-associata": "Saggezza",
+                        "utilizzo": [{
+                                "descrizione": "Scoprire se qualcuno sta barando",
+                                "classe-difficoltà": 10
+                            }, {
+                                "descrizione": "Vincere una partita",
+                                "classe-difficoltà": 20
+                            }
+                        ],
+                        "peso": {
+                            "valore": 0,
+                            "unità-di-misura": "lb"
+                        },
+                        "varianti": [{
+                                "id-oggetto": "DADI_5e_2024"
+                            }, {
+                                "id-oggetto": "CARTE_DA_GIOCO_5e_2024"
+                            }, {
+                                "id-oggetto": "SCACCHI_DEI_DRAGHI_5e_2024"
+                            }, {
+                                "id-oggetto": "TRE_DRAGONI_5e_2024"
+                            }
+                        ],
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 1
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Kit del Guaritore",
+                        "id": "KIT_GUARITORE_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un kit del guaritore contiene bende, unguenti e stecche. Ha 10 utilizzi. Come azione, puoi spendere un utilizzo del kit per stabilizzare una creatura che ha 0 punti ferita, senza dover effettuare una prova di Medicina.",
+                        "consumabile": true,
+                        "peso": {
+                            "valore": 3,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 5,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 5
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Faretra",
+                        "id": "FARETRA_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Una faretra può contenere fino a 20 frecce o quadrelli.",
+                        "consumabile": false,
+                        "peso": {
+                            "valore": 1,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 1
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Abiti da Viaggio",
+                        "id": "ABITI_VIAGGIO_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Abiti pratici e resistenti adatti per i viaggi.",
+                        "consumabile": false,
+                        "peso": {
+                            "valore": 4,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 2,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 2
+                            }
+                        }
+                    }
+                }
+            ],
+            "borsellino": [{
+                    "quantità": 14,
+                    "valuta": {
+                        "tipo-moneta": "G",
+                        "valore-in-monete-oro": 14
+                    }
+                }
+            ]
+        },
+        "opzione-b": {
+            "quantità": 50,
+            "valuta": {
+                "tipo-moneta": "G",
+                "valore-in-monete-oro": 50
+            }
+        }
+    }
+}

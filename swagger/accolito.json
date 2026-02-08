@@ -1,0 +1,175 @@
+{
+	"id": "ACCOLITO_5e_2024",
+	"nome": "Accolito",
+	"documentazione-di-riferimento": "DND 2024",
+	"caratteristiche-associate": [
+		"Intelligenza",
+		"Saggezza",
+		"Carisma"
+	],
+	"id-talento": "INIZIATO_ALLA_MAGIA_5e_2024",
+	"competenza-abilità": [
+		{
+			"abilità": "Intuizione",
+			"competenza": true,
+			"expertise": false,
+			"bonus": 0,
+			"caratteristica-collegata": "Saggezza"
+		},
+		{
+			"abilità": "Religione",
+			"competenza": true,
+			"expertise": false,
+			"bonus": 0,
+			"caratteristica-collegata": "Intelligenza"
+		}
+	],
+	"competenza-utensili": [
+		{
+			"id-utensile": "SCORTE_CALLIGRAFO_5e_2024"
+		}
+	],
+	"equipaggiamento": {
+		"opzione-a": {
+			"oggetti": [
+				{
+					"quantità": 10,
+					"rarità": "Comune",
+					"proprietà-magiche":"",
+					"proprietà": {
+						"tipo-oggetto": "Attrezzatura da Avventuriero",
+						"nome": "Pergamena",
+						"id": "PERGAMENA_5e_2024",
+						"documentazione-di-riferimento": "DND 2024",
+						"descrizione": "Un foglio di pergamena può contenere circa 250 parole scritte a mano.",
+						"consumabile": true,
+						"costo": {
+							"quantità": 1,
+							"valuta": {
+								"tipo-moneta": "S",
+								"valore-in-monete-oro": 0.1
+							}
+						}
+					}
+				},
+				{
+					"quantità": 1,
+					"rarità": "Comune",
+					"proprietà-magiche":"",
+					"proprietà": {
+						"tipo-oggetto": "Focus Incantesimo",
+						"nome": "Simbolo Sacro",
+						"id": "SIMBOLO_SACRO_5e_2024",
+						"documentazione-di-riferimento": "DND 2024",
+						"descrizione": "Un simbolo sacro assume una forma specifica ed è decorato con gioielli o dipinto per incanalare la magia divina. Un chierico o un paladino può usare un simbolo sacro come focus per lanciare incantesimi.",
+						"classi-utilizzatrici": [{"id-classe":"CHIERICO_5e_2024"},{"id-classe":"PALADINO_5e_2024"}],
+						"varianti": [{
+						"id-oggetto": "AMULETO_5e_2024"},
+						{"id-oggetto": "EMBLEMA_5e_2024"},{
+						"id-oggetto": "RELIQUIARIO_5e_2024"}
+						]
+					}
+				},
+				{
+					"quantità": 1,
+					"rarità": "Comune",
+					"proprietà-magiche":"",
+					"proprietà": {
+						"tipo-oggetto": "Attrezzatura da Avventuriero",
+						"nome": "Libro",
+						"id": "LIBRO_5e_2024",
+						"documentazione-di-riferimento": "DND 2024",
+						"descrizione": "Un libro contiene narrativa o saggistica. Se consulti un libro di saggistica accurato su un determinato argomento, ottieni un bonus di +5 ai tiri di Intelligenza (Arcana, Storia, Natura o Religione) relativi a quell'argomento.",
+						"consumabile": false,
+						"peso": {
+							"valore": 5,
+							"unità-di-misura": "lb"
+						},
+						"costo": {
+							"quantità": 25,
+							"valuta": {
+								"tipo-moneta": "G",
+								"valore-in-monete-oro": 25
+							}
+						}
+					}
+				},
+				{
+					"quantità": 1,
+					"rarità": "Comune",
+					"proprietà-magiche":"",
+					"proprietà": {
+						"tipo-oggetto": "Utensile",
+						"nome": "Scorte Calligrafo",
+						"id": "SCORTE_CALLIGRAFO_5e_2024",
+						"documentazione-di-riferimento": "DND 2024",
+						"descrizione": "Gli strumenti dell'artigiano sono tutti incentrati sulla creazione di oggetti e sull'esercizio di un mestiere. Ogni tipo di strumento dell'artigiano richiede una competenza specifica. Se hai competenza con uno strumento, aggiungi il tuo bonus di competenza a qualsiasi prova di abilità che effettui utilizzando quello strumento. Se hai competenza in un'abilità utilizzata in quella prova, hai anche vantaggio nella prova.",
+						"competenza": true,
+						"caratteristica-associata": "Destrezza",
+						"utilizzo": [
+							{
+								"descrizione": "Scrivi testi con decorazioni impressionanti che proteggono dalla contraffazione",
+								"classe-difficoltà": 15
+							}
+						],
+						"peso": {
+							"valore": 5,
+							"unità-di-misura": "lb"
+						},
+						"tipo-di-creazione": [
+							"Inchiostro",
+							"Pergamene Incantesimi"
+						],
+						"costo": {
+							"quantità": 10,
+							"valuta": {
+								"tipo-moneta": "G",
+								"valore-in-monete-oro": 10
+							}
+						}
+					}
+				},
+				{
+					"quantità": 1,
+					"rarità": "Comune",
+					"proprietà-magiche":"",
+					"proprietà": {
+						"tipo-oggetto": "Attrezzatura da Avventuriero",
+						"nome": "Veste",
+						"id": "VESTE_5e_2024",
+						"documentazione-di-riferimento": "DND 2024",
+						"consumabile": false,
+						"peso": {
+							"valore": 4,
+							"unità-di-misura": "lb"
+						},
+						"costo": {
+							"quantità": 1,
+							"valuta": {
+								"tipo-moneta": "G",
+								"valore-in-monete-oro": 1
+							}
+						},
+						"descrizione": "Una veste ha significato vacanziero o cerimoniale. Alcuni ambienti o eventi accettano solo persone con indosso una veste che contiene determinati colori o simboli"
+					}
+				}
+			],
+			"borsellino": [
+				{
+					"quantità": 8,
+					"valuta": {
+						"tipo-moneta": "G",
+						"valore-in-monete-oro": 8
+					}
+				}
+			]
+		},
+		"opzione-b": {
+			"quantità": 50,
+			"valuta": {
+				"tipo-moneta": "G",
+				"valore-in-monete-oro": 50
+			}
+		}
+	}
+}

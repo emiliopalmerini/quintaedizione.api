@@ -1,0 +1,250 @@
+{
+    "id": "SAGGIO_5e_2024",
+    "nome": "Saggio",
+    "documentazione-di-riferimento": "DND 2024",
+    "caratteristiche-associate": [
+        "Costituzione",
+        "Intelligenza",
+        "Saggezza"
+    ],
+    "id-talento": "INIZIATO_ALLA_MAGIA_MAGO_5e_2024",
+    "competenza-abilità": [{
+            "abilità": "Arcano",
+            "competenza": true,
+            "expertise": false,
+            "bonus": 0,
+            "caratteristica-collegata": "Intelligenza"
+        }, {
+            "abilità": "Storia",
+            "competenza": true,
+            "expertise": false,
+            "bonus": 0,
+            "caratteristica-collegata": "Intelligenza"
+        }
+    ],
+    "competenza-utensili": [{
+            "id-utensile": "SCORTE_CALLIGRAFO_5e_2024"
+        }
+    ],
+    "equipaggiamento": {
+        "opzione-a": {
+            "oggetti": [{
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Arma",
+                        "nome": "Bastone Ferrato",
+                        "id": "BASTONE_FERRATO_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un bastone ferrato è un'arma semplice da mischia versatile.",
+                        "categoria": "Semplice",
+                        "tipo": "Melee",
+                        "id-maestria": "TOPPLE_5e_2024",
+                        "mani-occupate": 1,
+                        "peso": {
+                            "valore": 4,
+                            "unità-di-misura": "lb"
+                        },
+                        "danno": [{
+                                "numero-dadi": 1,
+                                "tipo-di-dado": "D6",
+                                "tipo-danno": "Contundente"
+                            }
+                        ],
+                        "proprietà-arma": [{
+                                "nome": "Versatile",
+                                "descrizione": "Un'arma versatile può essere utilizzata con una o due mani. Il valore del danno è indicato tra parentesi accanto alla proprietà. L'arma infligge quel danno quando viene utilizzata con due mani per effettuare un attacco in mischia."
+                            }
+                        ],
+                        "costo": {
+                            "quantità": 2,
+                            "valuta": {
+                                "tipo-moneta": "S",
+                                "valore-in-monete-oro": 0.2
+                            }
+                        },
+                        "azioni": [{
+                                "proprietà-arma": "Default",
+                                "attacco": {
+                                    "id": "ATTACCO_BASTONE_FERRATO_DEFAULT_5e_2024",
+                                    "nome": "Attacco Bastone Ferrato",
+                                    "tipo": "Melee",
+                                    "descrizione": "Colpisci un bersaglio con il bastone ferrato.",
+                                    "tipo-di-azione": "Azione",
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 0,
+                                        "distanza-massima": 5,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "caratteristica-associata": "Forza",
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "effetto-attacco": {
+                                        [{
+                                                "numero-dadi": 1,
+                                                "tipo-di-dado": "D6",
+                                                "tipo-danno": "Contundente"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }, {
+                                "proprietà-arma": "Versatile",
+                                "attacco": {
+                                    "id": "ATTACCO_BASTONE_FERRATO_VERSATILE_5e_2024",
+                                    "nome": "Attacco Bastone Ferrato (Due Mani)",
+                                    "tipo": "Melee",
+                                    "descrizione": "Colpisci un bersaglio con il Bastone Ferrato impugnato a due mani.",
+                                    "tipo-di-azione": "Azione",
+                                    "colpisce-automaticamente": false,
+                                    "ha-portata": false,
+                                    "tipo-competenza": null,
+                                    "bonus": null,
+                                    "uso-limitato": null,
+                                    "gittata": {
+                                        "distanza-minima": 0,
+                                        "distanza-massima": 5,
+                                        "unità-di-misura": "ft"
+                                    },
+                                    "caratteristica-associata": "Forza",
+                                    "forma-area-effetto": null,
+                                    "dimensione-area-effetto": null,
+                                    "effetto-attacco": [{
+                                            "numero-dadi": 1,
+                                            "tipo-di-dado": "D8",
+                                            "tipo-danno": "Contundente"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà": {
+                        "tipo-oggetto": "Utensile",
+                        "nome": "Scorte Calligrafo",
+                        "id": "SCORTE_CALLIGRAFO_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Le scorte del calligrafo includono inchiostro, una varietà di penne e pennini, carta e pergamena. Servono per scrivere con eleganza e precisione.",
+                        "competenza": true,
+                        "caratteristica-associata": "Destrezza",
+                        "utilizzo": [{
+                                "descrizione": "Scrivi testi con decorazioni impressionanti che proteggono dalla contraffazione",
+                                "classe-difficoltà": 15
+                            }, {
+                                "descrizione": "Riconosci un documento contraffatto",
+                                "classe-difficoltà": 10
+                            }
+                        ],
+                        "peso": {
+                            "valore": 5,
+                            "unità-di-misura": "lb"
+                        },
+                        "tipo-di-creazione": [
+                            "Documenti Decorati",
+                            "Pergamene"
+                        ],
+                        "costo": {
+                            "quantità": 10,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 10
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Libro",
+                        "id": "LIBRO_STORIA_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un libro di storia. Se consulti un libro di saggistica accurato su un determinato argomento, ottieni un bonus di +5 ai tiri di Intelligenza (Storia) relativi a quell'argomento.",
+                        "consumabile": false,
+                        "peso": {
+                            "valore": 5,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 25,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 25
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 8,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Pergamena",
+                        "id": "PERGAMENA_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Un foglio di pergamena può contenere circa 250 parole scritte a mano.",
+                        "consumabile": true,
+                        "peso": {
+                            "valore": 0,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "S",
+                                "valore-in-monete-oro": 0.1
+                            }
+                        }
+                    }
+                }, {
+                    "quantità": 1,
+                    "rarità": "Comune",
+                    "proprietà-magiche": "",
+                    "proprietà": {
+                        "tipo-oggetto": "Attrezzatura da Avventuriero",
+                        "nome": "Veste",
+                        "id": "VESTE_5e_2024",
+                        "documentazione-di-riferimento": "DND 2024",
+                        "descrizione": "Una veste ha significato vacanziero o cerimoniale. Alcuni ambienti o eventi accettano solo persone con indosso una veste che contiene determinati colori o simboli.",
+                        "consumabile": false,
+                        "peso": {
+                            "valore": 4,
+                            "unità-di-misura": "lb"
+                        },
+                        "costo": {
+                            "quantità": 1,
+                            "valuta": {
+                                "tipo-moneta": "G",
+                                "valore-in-monete-oro": 1
+                            }
+                        }
+                    }
+                }
+            ],
+            "borsellino": [{
+                    "quantità": 8,
+                    "valuta": {
+                        "tipo-moneta": "G",
+                        "valore-in-monete-oro": 8
+                    }
+                }
+            ]
+        },
+        "opzione-b": {
+            "quantità": 50,
+            "valuta": {
+                "tipo-moneta": "G",
+                "valore-in-monete-oro": 50
+            }
+        }
+    }
+}

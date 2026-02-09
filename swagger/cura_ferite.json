@@ -1,0 +1,215 @@
+{
+    "id": "CURA_FERITE_5e_2024",
+    "nome": "Cura Ferite",
+    "livello": 1,
+    "scuola-di-magia": "Abiurazione",
+    "tempo-di-lancio": "Azione",
+    "gittata": {
+        "distanza": "Tocco"
+    },
+    "bersaglio": "Una creatura che tocchi",
+    "concentrazione": false,
+    "area": null,
+    "tipo-area": null,
+    "sempre-preparato": false,
+    "uso-limitato": null,
+    "rituale": false,
+    "componenti": [
+        "V",
+        "S"
+    ],
+    "componenti-materiali": null,
+    "durata": "Istantaneo",
+    "descrizione": "Una creatura che tocchi recupera un numero di Punti Ferita pari a 2d8 più il tuo modificatore di caratteristica da incantatore.",
+    "effetto-incantesimo": [{
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 1
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_1",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 1)",
+                    "descrizione": "Il bersaglio recupera 2d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 2,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 2
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_2",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 2)",
+                    "descrizione": "Il bersaglio recupera 4d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 4,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 3
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_3",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 3)",
+                    "descrizione": "Il bersaglio recupera 6d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 6,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 4
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_4",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 4)",
+                    "descrizione": "Il bersaglio recupera 8d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 8,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 5
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_5",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 5)",
+                    "descrizione": "Il bersaglio recupera 10d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 10,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 6
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_6",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 6)",
+                    "descrizione": "Il bersaglio recupera 12d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 12,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 7
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_7",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 7)",
+                    "descrizione": "Il bersaglio recupera 14d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 14,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 8
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_8",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 8)",
+                    "descrizione": "Il bersaglio recupera 16d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 16,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }, {
+            "slot-o-livello-incantesimo": {
+                "indicatore": "slot incantesimo",
+                "valore": 9
+            },
+            "ripetizione-effetto": 0,
+            "effetti": [{
+                    "id": "CURA_CURA_FERITE_5e_2024_SLT_9",
+                    "link": {
+                        "id-incantesimo": "CURA_FERITE_5e_2024"
+                    },
+                    "nome": "Cura Ferite (Livello 9)",
+                    "descrizione": "Il bersaglio recupera 18d8 + modificatore da incantatore Punti Ferita.",
+                    "tipo-di-azione": "Azione",
+                    "bonus": 0,
+                    "numero-di-dadi": 18,
+                    "caratteristica-associata": "Automatica",
+                    "tipo-di-dado": "D8"
+                }
+            ]
+        }
+    ],
+    "classi": [
+        "Artefice",
+        "Bardo",
+        "Chierico",
+        "Druido",
+        "Paladino",
+        "Ranger"
+    ],
+    "documentazione-di-riferimento": "DND 2024"
+}
